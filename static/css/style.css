@@ -113,6 +113,50 @@ body {
     left: 0;
 }
 
+/* Scanner focusing overlay */
+.barcode-scanner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.scanning-area {
+    position: absolute;
+    top: 25%;
+    left: 10%;
+    width: 80%;
+    height: 50%;
+    border: 2px solid var(--ruby-red);
+    border-radius: 10px;
+    box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.5);
+}
+
+.scanner-line {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 2px;
+    background-color: var(--ruby-red);
+    animation: scanner-animation 2s infinite;
+}
+
+@keyframes scanner-animation {
+    0% {
+        top: 0%;
+    }
+    50% {
+        top: 100%;
+    }
+    100% {
+        top: 0%;
+    }
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
     .display-4 {
