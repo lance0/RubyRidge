@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}About RubyRidge Ammo Inventory{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card bg-dark shadow-lg border-0 rounded-3 overflow-hidden">
+                <div class="card-header bg-midnight">
+                    <h2 class="mb-0 text-white">About RubyRidge Ammo Inventory</h2>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h3 class="border-bottom pb-2 mb-3 text-danger">Project Overview</h3>
+                        <p>RubyRidge Ammo Inventory is a comprehensive web application designed for ammunition management. It offers mobile-responsive design with barcode scanning capabilities allowing users to efficiently track and manage their ammunition inventory from any device.</p>
+                        
+                        <p>The application combines practical functionality with a sleek, tactical aesthetic inspired by the "RubyRidge" concept. It provides an intuitive interface for maintaining a detailed inventory of ammunition boxes, including caliber, count, and quantity information.</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="border-bottom pb-2 mb-3 text-danger">Key Features</h3>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="d-flex align-items-start">
+                                    <div class="feature-icon me-3">
+                                        <i class="fas fa-barcode"></i>
+                                    </div>
+                                    <div>
+                                        <h5>Barcode Scanning</h5>
+                                        <p>Scan ammunition UPCs directly with your mobile device's camera for quick inventory additions.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="d-flex align-items-start">
+                                    <div class="feature-icon me-3">
+                                        <i class="fas fa-database"></i>
+                                    </div>
+                                    <div>
+                                        <h5>UPC Database</h5>
+                                        <p>Maintain a database of ammunition UPCs for quick reference and lookup.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="d-flex align-items-start">
+                                    <div class="feature-icon me-3">
+                                        <i class="fas fa-search"></i>
+                                    </div>
+                                    <div>
+                                        <h5>Product Lookup</h5>
+                                        <p>Search for ammunition products by caliber to find and add to your database.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="d-flex align-items-start">
+                                    <div class="feature-icon me-3">
+                                        <i class="fas fa-mobile-alt"></i>
+                                    </div>
+                                    <div>
+                                        <h5>Mobile-Responsive</h5>
+                                        <p>Use the application on any device, including smartphones for on-the-go inventory management.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="border-bottom pb-2 mb-3 text-danger">Technical Stack</h3>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="card bg-secondary h-100 text-center py-3">
+                                    <div class="card-body">
+                                        <h4 class="card-title mb-3"><i class="fab fa-python me-2"></i>Backend</h4>
+                                        <ul class="list-unstyled">
+                                            <li>Flask Web Framework</li>
+                                            <li>SQLAlchemy ORM</li>
+                                            <li>PostgreSQL Database</li>
+                                            <li>RESTful API</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card bg-secondary h-100 text-center py-3">
+                                    <div class="card-body">
+                                        <h4 class="card-title mb-3"><i class="fab fa-js-square me-2"></i>Frontend</h4>
+                                        <ul class="list-unstyled">
+                                            <li>HTML5 & CSS3</li>
+                                            <li>JavaScript (ES6+)</li>
+                                            <li>Bootstrap 5</li>
+                                            <li>Responsive Design</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="card bg-secondary h-100 text-center py-3">
+                                    <div class="card-body">
+                                        <h4 class="card-title mb-3"><i class="fas fa-tools me-2"></i>Utilities</h4>
+                                        <ul class="list-unstyled">
+                                            <li>QuaggaJS (Barcode)</li>
+                                            <li>Web Scraping</li>
+                                            <li>FontAwesome Icons</li>
+                                            <li>Custom UI Components</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="border-bottom pb-2 mb-3 text-danger">How to Use</h3>
+                        <div class="steps-container">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h5>Add UPC Data</h5>
+                                    <p>Start by adding ammunition UPC codes to your database. You can add them manually or search for products.</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h5>Scan Barcodes</h5>
+                                    <p>Use the barcode scanner to quickly scan ammunition boxes and add them to your inventory.</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h5>Manage Inventory</h5>
+                                    <p>Track your ammunition inventory, see totals by caliber, and manage your stock levels.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="border-bottom pb-2 mb-3 text-danger">Future Development</h3>
+                        <p>RubyRidge Ammo Inventory is continuously being improved. Future plans include:</p>
+                        <ul>
+                            <li>User authentication and multi-user support</li>
+                            <li>Advanced reporting and export capabilities</li>
+                            <li>Shooting log integration to track ammunition usage</li>
+                            <li>Price tracking and budget features</li>
+                            <li>Expanded ammunition database with more product information</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="{{ url_for('home') }}" class="btn btn-danger px-4 py-2">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

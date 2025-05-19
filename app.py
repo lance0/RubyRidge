@@ -173,6 +173,11 @@ def upcs():
     upc_data = UpcData.query.order_by(UpcData.name).all()
     return render_template('upcs.html', upcs=upc_data)
 
+@app.route('/about')
+def about():
+    # About page
+    return render_template('about.html')
+
 @app.route('/api/scrape_ammo', methods=['POST'])
 def scrape_ammo():
     # Since web scraping can be unstable, we'll use a combination of:

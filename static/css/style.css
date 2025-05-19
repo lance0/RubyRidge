@@ -364,11 +364,14 @@ body {
 .form-control, .form-select {
     border: 1px solid var(--gunmetal);
     padding: 0.75rem 1rem;
+    color: white !important;
+    background-color: #2c3539 !important;
 }
 
 .form-control:focus, .form-select:focus {
     border-color: var(--ruby-red);
     box-shadow: 0 0 0 0.25rem rgba(196, 30, 58, 0.25);
+    background-color: #343b40;
 }
 
 /* Table styling */
@@ -377,10 +380,69 @@ body {
     color: white;
 }
 
+.table {
+    color: #e0e0e0;
+}
+
 .table-striped>tbody>tr:nth-of-type(odd)>* {
     background-color: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
 }
 
 .table-hover tbody tr:hover {
     background-color: rgba(196, 30, 58, 0.1);
+}
+
+/* Enhanced readability styling */
+.text-muted,
+.form-text,
+.small,
+small {
+    color: #e6e6e6 !important;
+    font-weight: 500 !important;
+}
+
+/* Brighten backgrounds */
+.bg-secondary {
+    background-color: #3c4147 !important;
+}
+
+/* Improved visibility for cards and product details */
+.product-details .text-muted {
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+.card-body .row {
+    margin-bottom: 0.5rem;
+}
+
+/* Adjust alert colors */
+.alert-secondary {
+    background-color: #3c4147;
+    border-color: #4a4f55;
+    color: #e0e0e0;
+}
+
+/* Better contrast for links and buttons */
+a:not(.btn),
+.btn-link {
+    color: #ff6b81;
+}
+
+a:hover:not(.btn),
+.btn-link:hover {
+    color: #ff8c9a;
+}
+
+/* Improve card styles for better visibility */
+.card.bg-secondary {
+    background-color: #32383e !important;
+    border: 1px solid #4a5056;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Brighten border colors */
+.border-dark {
+    border-color: #495057 !important;
 }
