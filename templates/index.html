@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 offset-lg-2">
+        <div class="card shadow-lg border-0 rounded-lg mt-4 bg-dark text-white">
+            <div class="card-header">
+                <h1 class="text-center text-danger mb-0"><i class="fas fa-bullseye me-2"></i>RubyRidge</h1>
+                <h3 class="text-center text-white mt-2">Tactical Ammo Inventory System</h3>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="row justify-content-center">
+                        <div class="col-md-6 col-lg-5 mb-4">
+                            <div class="card rugged-card">
+                                <img src="https://pixabay.com/get/g9c301725890e0c0301134a95f7db27651d74d1b22f4d80d457a673d637c5a5e16db7af0a8c9b329e907eedadb2eae30a1895f1115697d0a8017800da76b46089_1280.jpg" class="card-img-top" alt="Ammunition Boxes">
+                                <div class="card-body bg-secondary text-white">
+                                    <h5 class="card-title">Track Your Arsenal</h5>
+                                    <p class="card-text">Keep tabs on all your ammunition with our easy inventory system.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-5 mb-4">
+                            <div class="card rugged-card">
+                                <img src="https://pixabay.com/get/gbe25a3a8ddb3255460e95027d004bb7fd06f4f42aa45aee70cdbd87480e2751d396f5a7a0307a3528b848c3e51cbc0d94acbf1e8c9c34478843729c3bce8e2a0_1280.jpg" class="card-img-top" alt="Ammunition Boxes">
+                                <div class="card-body bg-secondary text-white">
+                                    <h5 class="card-title">Barcode Scanning</h5>
+                                    <p class="card-text">Quickly add ammo to your inventory by scanning box barcodes.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center mt-2">
+                        <div class="col-lg-10">
+                            <div class="card rugged-card">
+                                <div class="card-body bg-dark text-white">
+                                    <h4 class="mb-3">Start Using RubyRidge Today</h4>
+                                    <div class="d-grid gap-3 d-sm-flex justify-content-center">
+                                        <a href="/inventory" class="btn btn-danger btn-lg">
+                                            <i class="fas fa-box me-2"></i>View Inventory
+                                        </a>
+                                        <a href="/scan" class="btn btn-danger btn-lg">
+                                            <i class="fas fa-barcode me-2"></i>Scan Barcode
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6 mb-4">
+                        <div class="card bg-secondary text-white h-100">
+                            <div class="card-body">
+                                <h5 class="card-title border-bottom pb-2"><i class="fas fa-check-circle me-2"></i>Features</h5>
+                                <ul class="list-unstyled mt-3">
+                                    <li class="mb-2"><i class="fas fa-crosshairs me-2 text-danger"></i>Barcode scanning via mobile camera</li>
+                                    <li class="mb-2"><i class="fas fa-crosshairs me-2 text-danger"></i>UPC lookup for ammo data</li>
+                                    <li class="mb-2"><i class="fas fa-crosshairs me-2 text-danger"></i>Track rounds by caliber</li>
+                                    <li class="mb-2"><i class="fas fa-crosshairs me-2 text-danger"></i>Mobile-responsive design</li>
+                                    <li class="mb-2"><i class="fas fa-crosshairs me-2 text-danger"></i>Add, edit, delete inventory</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card bg-secondary text-white h-100">
+                            <div class="card-body">
+                                <h5 class="card-title border-bottom pb-2"><i class="fas fa-info-circle me-2"></i>How It Works</h5>
+                                <ol class="mt-3">
+                                    <li class="mb-2">Go to the Scan page to add ammunition via barcode</li>
+                                    <li class="mb-2">Allow camera access to scan UPC barcodes</li>
+                                    <li class="mb-2">Review the found ammo information</li>
+                                    <li class="mb-2">Add quantity and any notes</li>
+                                    <li class="mb-2">View your complete inventory anytime</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 offset-lg-2">
+        <div class="card shadow-lg border-0 rounded-lg mt-2 bg-dark text-white">
+            <div class="card-header">
+                <h2 class="text-danger mb-0"><i class="fas fa-barcode me-2"></i>Scan Ammo Barcode</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card bg-secondary text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">How to Scan</h5>
+                                <ol>
+                                    <li class="mb-2">Allow camera access when prompted</li>
+                                    <li class="mb-2">Point your camera at the barcode on the ammo box</li>
+                                    <li class="mb-2">Hold steady until the barcode is recognized</li>
+                                    <li class="mb-2">Fill in quantity and notes</li>
+                                    <li class="mb-2">Add to inventory!</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card rugged-card">
+                            <img src="https://pixabay.com/get/g1615cd8349bc8fbc8b284b67163d74db6931b283c2f37058118b77d8cbf9ac2ea478323a0bfd8520d3da25428d2183bd507b2b0e1d43737aa316dbc8fef6c542_1280.jpg" class="card-img-top" alt="Ammunition Boxes">
+                            <div class="card-body bg-secondary text-white">
+                                <h5 class="card-title">Scan the UPC Barcode</h5>
+                                <p class="card-text">The app will automatically look up the ammo details from the UPC code.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Scanner Controls -->
+                <div class="row mb-4">
+                    <div class="col-lg-12">
+                        <div class="card bg-secondary">
+                            <div class="card-body text-center">
+                                <button id="startButton" class="btn btn-danger btn-lg mb-3">
+                                    <i class="fas fa-camera me-2"></i>Start Scanner
+                                </button>
+                                <button id="resetButton" class="btn btn-outline-light btn-lg mb-3 ms-2" style="display: none;">
+                                    <i class="fas fa-redo me-2"></i>Reset
+                                </button>
+                                <div id="scanMessage" class="text-white mb-2"></div>
+                                
+                                <!-- Scanner Viewfinder -->
+                                <div id="scannerContainer" class="scanner-container mb-3" style="display: none;">
+                                    <div id="scanner" class="viewport"></div>
+                                </div>
+                                
+                                <!-- Manual UPC Entry -->
+                                <div class="mt-3">
+                                    <div class="input-group">
+                                        <input type="text" id="manualUpc" class="form-control bg-dark text-white border-dark" placeholder="Or enter UPC manually...">
+                                        <button class="btn btn-danger" id="manualLookupBtn">
+                                            <i class="fas fa-search me-2"></i>Lookup
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Scan Results (hidden initially) -->
+                <div id="scanResults" class="row" style="display: none;">
+                    <div class="col-md-12">
+                        <div class="card bg-dark border-danger">
+                            <div class="card-header bg-danger text-white">
+                                <h4 class="mb-0"><i class="fas fa-bullseye me-2"></i>Scan Results</h4>
+                            </div>
+                            <div class="card-body">
+                                <form id="addAmmoForm">
+                                    <input type="hidden" id="ammoUpc">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="ammoName" class="form-label">Ammunition Name</label>
+                                            <input type="text" class="form-control bg-secondary text-white" id="ammoName" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="ammoCaliber" class="form-label">Caliber</label>
+                                            <input type="text" class="form-control bg-secondary text-white" id="ammoCaliber" required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="ammoCountPerBox" class="form-label">Count Per Box</label>
+                                            <input type="number" class="form-control bg-secondary text-white" id="ammoCountPerBox" min="1" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="ammoQuantity" class="form-label">Quantity (Boxes)</label>
+                                            <input type="number" class="form-control bg-secondary text-white" id="ammoQuantity" min="1" value="1" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="ammoNotes" class="form-label">Notes</label>
+                                        <textarea class="form-control bg-secondary text-white" id="ammoNotes" rows="2"></textarea>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-danger btn-lg">
+                                            <i class="fas fa-plus-circle me-2"></i>Add to Inventory
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/barcode.js') }}"></script>
+{% endblock %}
