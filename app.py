@@ -173,6 +173,34 @@ def upcs():
     upc_data = UpcData.query.order_by(UpcData.name).all()
     return render_template('upcs.html', upcs=upc_data)
 
+@app.route('/api/scrape_ammo', methods=['POST'])
+def scrape_ammo():
+    from scraper import PalmettoScraper
+    
+    data = request.get_json()
+    if not data or 'query' not in data:
+        return jsonify({"success": False, "message": "No search query provided"})
+    
+    query = data['query']
+    max_products = data.get('max_products', 5)
+    
+    try:
+        # Create scraper and search for products
+        scraper = PalmettoScraper()
+        results = scraper.search_and_get_details(query, max_products=max_products)
+        
+        # Filter results to only include those with UPC, caliber, and count_per_box
+        valid_results = []
+        for product in results:
+            if 'upc' in product and 'caliber' in product and 'count_per_box' in product:
+                valid_results.append(product)
+        
+        return jsonify({"success": True, "results": valid_results})
+    
+    except Exception as e:
+        logging.error(f"Error scraping ammunition: {str(e)}")
+        return jsonify({"success": False, "message": f"Error scraping ammunition: {str(e)}"})
+
 @app.route('/api/lookup_upc/<upc>', methods=['GET'])
 def api_lookup_upc(upc):
     ammo_data = lookup_upc(upc)

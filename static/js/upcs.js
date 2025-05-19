@@ -30,6 +30,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const deleteUpcName = document.getElementById('deleteUpcName');
     const confirmDeleteUpc = document.getElementById('confirmDeleteUpc');
     
+    // Elements for scraping
+    const scrapeQuery = document.getElementById('scrapeQuery');
+    const scrapeLimit = document.getElementById('scrapeLimit');
+    const scrapeSearchBtn = document.getElementById('scrapeSearchBtn');
+    const scrapeLoading = document.getElementById('scrapeLoading');
+    const scrapeResults = document.getElementById('scrapeResults');
+    const scrapeResultsList = document.getElementById('scrapeResultsList');
+    const scrapeNoResults = document.getElementById('scrapeNoResults');
+    const scrapeError = document.getElementById('scrapeError');
+    
     // Modal instances
     let addModal = document.getElementById('addUpcModal') ? new bootstrap.Modal(document.getElementById('addUpcModal')) : null;
     let editModal = document.getElementById('editUpcModal') ? new bootstrap.Modal(document.getElementById('editUpcModal')) : null;
@@ -89,6 +99,23 @@ document.addEventListener('DOMContentLoaded', function() {
     if (confirmDeleteUpc) {
         confirmDeleteUpc.addEventListener('click', function() {
             deleteUpc();
+        });
+    }
+    
+    // Scrape Search button click handler
+    if (scrapeSearchBtn) {
+        scrapeSearchBtn.addEventListener('click', function() {
+            searchAmmo();
+        });
+    }
+    
+    // Enter key handler for scrape search input
+    if (scrapeQuery) {
+        scrapeQuery.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchAmmo();
+            }
         });
     }
     
@@ -279,6 +306,190 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Error deleting UPC:', error);
                 showAlert('Error deleting UPC: ' + error.message, 'danger');
+            });
+    }
+    
+    /**
+     * Search for ammunition products using the scraper
+     */
+    function searchAmmo() {
+        const query = scrapeQuery.value.trim();
+        
+        if (!query) {
+            showAlert('Please enter a search term', 'warning');
+            return;
+        }
+        
+        // Reset UI
+        scrapeLoading.style.display = 'block';
+        scrapeResults.style.display = 'none';
+        scrapeNoResults.style.display = 'none';
+        scrapeError.style.display = 'none';
+        scrapeResultsList.innerHTML = '';
+        
+        // Get the product limit
+        const limit = parseInt(scrapeLimit.value) || 5;
+        
+        // Make API request
+        fetch('/api/scrape_ammo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                query: query,
+                max_products: limit
+            })
+        })
+            .then(response => response.json())
+            .then(result => {
+                // Hide loading indicator
+                scrapeLoading.style.display = 'none';
+                
+                if (result.success) {
+                    const products = result.results;
+                    
+                    if (products && products.length > 0) {
+                        // Show results
+                        scrapeResults.style.display = 'block';
+                        
+                        // Create result cards
+                        renderProductResults(products);
+                    } else {
+                        // Show no results message
+                        scrapeNoResults.style.display = 'block';
+                    }
+                } else {
+                    // Show error message
+                    scrapeError.textContent = result.message || 'An error occurred while scraping ammo data';
+                    scrapeError.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error scraping ammunition:', error);
+                
+                // Hide loading indicator
+                scrapeLoading.style.display = 'none';
+                
+                // Show error message
+                scrapeError.textContent = 'Error: ' + error.message;
+                scrapeError.style.display = 'block';
+            });
+    }
+    
+    /**
+     * Render product results from scraper
+     * @param {Array} products - Array of product objects
+     */
+    function renderProductResults(products) {
+        scrapeResultsList.innerHTML = '';
+        
+        products.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'card bg-secondary mb-3';
+            
+            let html = `
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h5 class="card-title text-white">${product.name}</h5>
+                        <span class="badge bg-danger">${product.price || 'Price N/A'}</span>
+                    </div>
+                    <div class="product-details mb-3">
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <div class="text-muted">UPC:</div>
+                                <div class="fw-bold text-white">${product.upc}</div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="text-muted">Caliber:</div>
+                                <div class="fw-bold text-white">${product.caliber}</div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="text-muted">Count Per Box:</div>
+                                <div class="fw-bold text-white">${product.count_per_box}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="${product.url}" target="_blank" class="btn btn-sm btn-outline-light">
+                            <i class="fas fa-external-link-alt me-1"></i> View on PSA
+                        </a>
+                        <button class="btn btn-sm btn-success import-upc-btn" 
+                            data-upc="${product.upc}" 
+                            data-name="${product.name}" 
+                            data-caliber="${product.caliber}" 
+                            data-count="${product.count_per_box}">
+                            <i class="fas fa-file-import me-1"></i> Import to Database
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            card.innerHTML = html;
+            scrapeResultsList.appendChild(card);
+            
+            // Add click event to import button
+            const importBtn = card.querySelector('.import-upc-btn');
+            if (importBtn) {
+                importBtn.addEventListener('click', function() {
+                    const upcData = {
+                        upc: this.dataset.upc,
+                        name: this.dataset.name,
+                        caliber: this.dataset.caliber,
+                        count_per_box: parseInt(this.dataset.count)
+                    };
+                    
+                    importUpcData(upcData, this);
+                });
+            }
+        });
+    }
+    
+    /**
+     * Import UPC data from scraper results
+     * @param {Object} upcData - UPC data object to import
+     * @param {HTMLElement} button - The button element that was clicked
+     */
+    function importUpcData(upcData, button) {
+        // Disable button and show loading
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Importing...';
+        
+        fetch('/api/add_upc', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(upcData)
+        })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Update button to show success
+                    button.className = 'btn btn-sm btn-success';
+                    button.innerHTML = '<i class="fas fa-check me-1"></i> Imported!';
+                    button.disabled = true;
+                    
+                    // Show success message
+                    showAlert('UPC imported successfully!', 'success');
+                } else {
+                    // Re-enable button
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fas fa-file-import me-1"></i> Import to Database';
+                    
+                    // Show error message
+                    showAlert('Error importing UPC: ' + result.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error importing UPC:', error);
+                
+                // Re-enable button
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-file-import me-1"></i> Import to Database';
+                
+                // Show error message
+                showAlert('Error importing UPC: ' + error.message, 'danger');
             });
     }
 });

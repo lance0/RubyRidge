@@ -5,9 +5,14 @@
     <div class="card shadow-lg border-0 rounded-lg bg-dark text-white">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h2 class="text-danger mb-0"><i class="fas fa-barcode me-2"></i>UPC Database</h2>
-            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#addUpcModal">
-                <i class="fas fa-plus me-2"></i>Add UPC
-            </button>
+            <div>
+                <button class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#scrapeModal">
+                    <i class="fas fa-search me-2"></i>Scrape Palmetto
+                </button>
+                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#addUpcModal">
+                    <i class="fas fa-plus me-2"></i>Add UPC
+                </button>
+            </div>
         </div>
         
         <div class="card-body">
@@ -189,6 +194,81 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-danger" id="confirmDeleteUpc">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scraper Modal -->
+<div class="modal fade" id="scrapeModal" tabindex="-1" aria-labelledby="scrapeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header bg-danger">
+                <h5 class="modal-title" id="scrapeModalLabel">
+                    <i class="fas fa-search me-2"></i>
+                    Scrape Ammunition Data
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-4">
+                    <p class="mb-1">Search for ammunition on Palmetto State Armory to import UPC codes and product details.</p>
+                    <div class="alert alert-secondary small">
+                        <strong>Tip:</strong> Include "ammo" or "rounds" in your search for best results. Example: "9mm ammo", "5.56 rounds".
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-lg-8">
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-secondary text-white" 
+                                   id="scrapeQuery" placeholder="Search ammunition..." 
+                                   aria-label="Search ammunition">
+                            <button class="btn btn-danger" type="button" id="scrapeSearchBtn">
+                                <i class="fas fa-search me-1"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="input-group">
+                            <label class="input-group-text bg-secondary text-white">Limit</label>
+                            <select class="form-select bg-secondary text-white" id="scrapeLimit">
+                                <option value="3">3 items</option>
+                                <option value="5" selected>5 items</option>
+                                <option value="10">10 items</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Loading indicator -->
+                <div id="scrapeLoading" class="text-center py-5" style="display: none;">
+                    <div class="spinner-border text-danger mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Searching for ammunition data...</p>
+                    <p class="small text-muted">This might take a minute as we carefully gather product information.</p>
+                </div>
+                
+                <!-- Results container -->
+                <div id="scrapeResults" style="display: none;">
+                    <h5 class="border-bottom pb-2 mb-3">Search Results</h5>
+                    <div id="scrapeResultsList" class="mb-3">
+                        <!-- Results will be inserted here dynamically -->
+                    </div>
+                </div>
+                
+                <!-- No results message -->
+                <div id="scrapeNoResults" class="alert alert-secondary text-center" style="display: none;">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No valid ammunition products found. Try a different search term.
+                </div>
+                
+                <!-- Error message -->
+                <div id="scrapeError" class="alert alert-danger" style="display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
