@@ -128,9 +128,71 @@ def lookup_upc(upc):
     if upc_data:
         return upc_data.to_dict()
     
-    # In a real app, you'd call an API here to get unknown UPCs
-    # For now we'll just return None for unknown UPCs
-    return None
+    # Try UPC Item DB API for unknown UPCs
+    try:
+        logging.info(f"Looking up UPC {upc} in UPC Item DB API")
+        url = f"https://api.upcitemdb.com/prod/trial/lookup?upc={upc}"
+        headers = {
+            "Accept": "application/json"
+        }
+        response = requests.get(url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            
+            # Check if we got a valid result
+            if data.get('items') and len(data['items']) > 0:
+                item = data['items'][0]
+                
+                # Extract ammunition-related information
+                title = item.get('title', 'Unknown Product')
+                brand = item.get('brand', '')
+                
+                # Try to determine if it's ammunition and extract caliber
+                caliber = None
+                count_per_box = None
+                
+                # Common ammunition calibers to look for in title
+                calibers = [
+                    '9mm', '.45', '.40', '.380', '.22', '.223', '5.56', 
+                    '.308', '7.62', '.300', '6.5', '12 gauge', '20 gauge'
+                ]
+                
+                # Check title for caliber information
+                for cal in calibers:
+                    if cal.lower() in title.lower():
+                        caliber = cal
+                        break
+                        
+                # Look for count information (e.g., "50 rounds", "20 count", etc.)
+                import re
+                count_match = re.search(r'(\d+)\s*(rd|round|count|ct|rnd|rnds|rounds)', title.lower())
+                if count_match:
+                    count_per_box = int(count_match.group(1))
+                
+                # Default values if we couldn't determine specifics
+                if not caliber:
+                    caliber = "Unknown"
+                if not count_per_box:
+                    count_per_box = 0
+                
+                # Create a result using available information
+                product_name = f"{brand} {title}" if brand else title
+                return {
+                    'upc': upc,
+                    'name': product_name,
+                    'caliber': caliber,
+                    'count_per_box': count_per_box,
+                    'source': 'api'  # Mark this as coming from the API
+                }
+                
+        # If we didn't get a valid result or couldn't parse it
+        logging.warning(f"UPC lookup failed for {upc}: {response.text}")
+        return None
+        
+    except Exception as e:
+        logging.error(f"Error looking up UPC {upc}: {str(e)}")
+        return None
 
 # Routes
 @app.route('/')
@@ -412,9 +474,16 @@ def scrape_ammo():
 def api_lookup_upc(upc):
     ammo_data = lookup_upc(upc)
     if ammo_data:
-        return jsonify({"success": True, "data": ammo_data})
+        # Check if it came from UPC Item DB API
+        source = "database"
+        if 'source' in ammo_data and ammo_data['source'] == 'api':
+            source = "api"
+            # Remove the source field before sending to client
+            del ammo_data['source']
+        
+        return jsonify({"success": True, "data": ammo_data, "source": source})
     else:
-        return jsonify({"success": False, "message": "UPC not found in database"})
+        return jsonify({"success": False, "message": "UPC not found in database or external API"})
 
 @app.route('/api/add_upc', methods=['POST'])
 def add_upc():

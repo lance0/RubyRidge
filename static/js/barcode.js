@@ -248,7 +248,17 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    scanMessage.textContent = `UPC found: ${data.data.name}`;
+                    // Check the source of the data (database or API)
+                    let sourceInfo = "";
+                    if (data.source === "api") {
+                        sourceInfo = " (from UPC Item DB API)";
+                        // For API results, allow user to edit fields as they might need refinement
+                        ammoNameField.classList.add("border-info");
+                        ammoCaliberField.classList.add("border-info");
+                        ammoCountPerBoxField.classList.add("border-info");
+                    }
+                    
+                    scanMessage.textContent = `UPC found: ${data.data.name}${sourceInfo}`;
                     
                     // Populate the form fields with the UPC data
                     ammoUpcField.value = upc;
@@ -256,7 +266,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     ammoCaliberField.value = data.data.caliber;
                     ammoCountPerBoxField.value = data.data.count_per_box;
                     ammoQuantityField.value = 1; // Default to 1 box
-                    ammoNotesField.value = ''; // Clear any previous notes
+                    
+                    // If from API, add a note
+                    if (data.source === "api") {
+                        ammoNotesField.value = 'Data from UPC Item DB API - verify details';
+                    } else {
+                        ammoNotesField.value = ''; // Clear any previous notes
+                    }
                     
                     // Show the scan results form
                     scanResults.style.display = 'block';
