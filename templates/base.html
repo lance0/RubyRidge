@@ -11,6 +11,9 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
     <!-- Quagga JS (barcode scanner library) -->
     <script src="https://cdn.jsdelivr.net/npm/quagga@0.12.1/dist/quagga.min.js"></script>
     
@@ -21,8 +24,8 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
                 <a class="navbar-brand" href="/">
                     <i class="fas fa-bullseye me-2"></i>RubyRidge
                 </a>
@@ -30,15 +33,15 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="/">Home</a>
+                            <a class="nav-link" href="/"><i class="fas fa-home me-1"></i> Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/inventory">Inventory</a>
+                            <a class="nav-link" href="/inventory"><i class="fas fa-boxes me-1"></i> Inventory</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/scan">Scan Barcode</a>
+                            <a class="nav-link" href="/scan"><i class="fas fa-barcode me-1"></i> Scan Barcode</a>
                         </li>
                     </ul>
                 </div>
@@ -46,13 +49,22 @@
         </nav>
     </header>
     
-    <main class="container py-4">
+    <main>
         {% block content %}{% endblock %}
     </main>
     
-    <footer class="bg-dark text-white text-center py-3">
+    <footer class="bg-dark text-white text-center py-4">
         <div class="container">
-            <span>&copy; 2023 RubyRidge Ammo Inventory</span>
+            <div class="row">
+                <div class="col-md-6 text-md-start">
+                    <h5 class="text-danger mb-3"><i class="fas fa-bullseye me-2"></i>RubyRidge</h5>
+                    <p class="small mb-0">The ultimate tactical ammo inventory system for serious collectors.</p>
+                </div>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <p class="small mb-0">&copy; 2025 RubyRidge Ammo Inventory</p>
+                    <p class="small text-muted">Tactical Solutions for Modern Problems</p>
+                </div>
+            </div>
         </div>
     </footer>
     
