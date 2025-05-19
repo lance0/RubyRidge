@@ -167,6 +167,12 @@ def inventory():
 def scan():
     return render_template('scan.html')
 
+@app.route('/upcs')
+def upcs():
+    # Get all UPC data from database
+    upc_data = UpcData.query.order_by(UpcData.name).all()
+    return render_template('upcs.html', upcs=upc_data)
+
 @app.route('/api/lookup_upc/<upc>', methods=['GET'])
 def api_lookup_upc(upc):
     ammo_data = lookup_upc(upc)
@@ -174,6 +180,121 @@ def api_lookup_upc(upc):
         return jsonify({"success": True, "data": ammo_data})
     else:
         return jsonify({"success": False, "message": "UPC not found in database"})
+
+@app.route('/api/add_upc', methods=['POST'])
+def add_upc():
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({"success": False, "message": "No data provided"})
+    
+    required_fields = ['upc', 'name', 'caliber', 'count_per_box']
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"success": False, "message": f"Missing required field: {field}"})
+    
+    try:
+        # Check if UPC already exists
+        existing_upc = UpcData.query.filter_by(upc=data['upc']).first()
+        if existing_upc:
+            return jsonify({"success": False, "message": "UPC already exists in database"})
+        
+        # Create new UPC data
+        new_upc = UpcData(
+            upc=data['upc'],
+            name=data['name'],
+            caliber=data['caliber'],
+            count_per_box=int(data['count_per_box'])
+        )
+        
+        # Add to database
+        db.session.add(new_upc)
+        db.session.commit()
+        
+        return jsonify({"success": True, "message": "UPC added successfully", "upc": new_upc.to_dict()})
+    
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error adding UPC: {str(e)}")
+        return jsonify({"success": False, "message": f"Error adding UPC: {str(e)}"})
+
+@app.route('/api/update_upc/<int:upc_id>', methods=['POST'])
+def update_upc(upc_id):
+    data = request.get_json()
+    
+    try:
+        # Find UPC by ID
+        upc_data = UpcData.query.get(upc_id)
+        
+        if not upc_data:
+            return jsonify({"success": False, "message": "UPC not found"})
+        
+        # Check if updating to a UPC that already exists (but different ID)
+        if 'upc' in data and data['upc'] != upc_data.upc:
+            existing = UpcData.query.filter_by(upc=data['upc']).first()
+            if existing and existing.id != upc_id:
+                return jsonify({"success": False, "message": "Cannot update: UPC code already exists"})
+        
+        # Update fields
+        if 'upc' in data:
+            upc_data.upc = data['upc']
+        if 'name' in data:
+            upc_data.name = data['name']
+        if 'caliber' in data:
+            upc_data.caliber = data['caliber']
+        if 'count_per_box' in data:
+            upc_data.count_per_box = int(data['count_per_box'])
+        
+        db.session.commit()
+        
+        # Update any inventory items using this UPC
+        if any(key in data for key in ['name', 'caliber', 'count_per_box']):
+            ammo_boxes = AmmoBox.query.filter_by(upc=upc_data.upc).all()
+            for box in ammo_boxes:
+                if 'name' in data:
+                    box.name = data['name']
+                if 'caliber' in data:
+                    box.caliber = data['caliber']
+                if 'count_per_box' in data:
+                    box.count_per_box = int(data['count_per_box'])
+                    box.update_total_rounds()
+            
+            db.session.commit()
+        
+        return jsonify({"success": True, "message": "UPC updated successfully", "upc": upc_data.to_dict()})
+    
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error updating UPC: {str(e)}")
+        return jsonify({"success": False, "message": f"Error updating UPC: {str(e)}"})
+
+@app.route('/api/delete_upc/<int:upc_id>', methods=['POST'])
+def delete_upc(upc_id):
+    try:
+        # Find UPC by ID
+        upc_data = UpcData.query.get(upc_id)
+        
+        if not upc_data:
+            return jsonify({"success": False, "message": "UPC not found"})
+        
+        # Check if this UPC is being used in inventory
+        inventory_items = AmmoBox.query.filter_by(upc=upc_data.upc).count()
+        if inventory_items > 0:
+            return jsonify({
+                "success": False, 
+                "message": f"Cannot delete: UPC is used by {inventory_items} inventory items"
+            })
+        
+        # Delete from database
+        db.session.delete(upc_data)
+        db.session.commit()
+        
+        return jsonify({"success": True, "message": "UPC deleted successfully"})
+    
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Error deleting UPC: {str(e)}")
+        return jsonify({"success": False, "message": f"Error deleting UPC: {str(e)}"})
 
 @app.route('/api/add_inventory', methods=['POST'])
 def add_inventory():
