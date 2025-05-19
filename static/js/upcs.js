@@ -119,6 +119,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Quick search buttons click handlers
+    const quickSearchButtons = document.querySelectorAll('.quick-search-btn');
+    if (quickSearchButtons.length > 0) {
+        quickSearchButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const caliber = this.getAttribute('data-caliber');
+                if (caliber && scrapeQuery) {
+                    scrapeQuery.value = caliber;
+                    searchAmmo();
+                }
+            });
+        });
+    }
+    
     /**
      * Filter UPCs table based on search and filter inputs
      */

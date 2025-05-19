@@ -212,17 +212,20 @@
             </div>
             <div class="modal-body">
                 <div class="mb-4">
-                    <p class="mb-1">Search for ammunition on Palmetto State Armory to import UPC codes and product details.</p>
+                    <p class="mb-1">Search for ammunition to import UPC codes and product details.</p>
                     <div class="alert alert-secondary small">
-                        <strong>Tip:</strong> Include "ammo" or "rounds" in your search for best results. Example: "9mm ammo", "5.56 rounds".
+                        <strong>Available ammunition calibers:</strong> 9mm, 5.56, .223, .45, .22, 12 gauge
                     </div>
                 </div>
                 
                 <div class="row mb-4">
                     <div class="col-lg-8">
                         <div class="input-group">
+                            <div class="input-group-text bg-secondary text-white">
+                                <i class="fas fa-search"></i>
+                            </div>
                             <input type="text" class="form-control bg-secondary text-white" 
-                                   id="scrapeQuery" placeholder="Search ammunition..." 
+                                   id="scrapeQuery" placeholder="Enter a caliber (e.g., 9mm, 5.56, .223)" 
                                    aria-label="Search ammunition">
                             <button class="btn btn-danger" type="button" id="scrapeSearchBtn">
                                 <i class="fas fa-search me-1"></i> Search
@@ -238,6 +241,18 @@
                                 <option value="10">10 items</option>
                             </select>
                         </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Search Buttons -->
+                <div class="mb-4">
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-sm btn-outline-danger quick-search-btn" data-caliber="9mm">9mm</button>
+                        <button class="btn btn-sm btn-outline-danger quick-search-btn" data-caliber="5.56">5.56</button>
+                        <button class="btn btn-sm btn-outline-danger quick-search-btn" data-caliber=".223">.223</button>
+                        <button class="btn btn-sm btn-outline-danger quick-search-btn" data-caliber=".45">.45</button>
+                        <button class="btn btn-sm btn-outline-danger quick-search-btn" data-caliber=".22">.22</button>
+                        <button class="btn btn-sm btn-outline-danger quick-search-btn" data-caliber="12 gauge">12 Gauge</button>
                     </div>
                 </div>
                 
