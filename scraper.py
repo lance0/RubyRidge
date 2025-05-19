@@ -39,6 +39,13 @@ class PalmettoScraper:
         results = []
         
         try:
+            # Add "ammo" to query if it doesn't already contain ammo-related keywords
+            search_terms = query.lower()
+            ammo_keywords = ['ammo', 'ammunition', 'round', 'rounds', 'cartridge', 'cartridges']
+            if not any(keyword in search_terms for keyword in ammo_keywords):
+                query = f"{query} ammo"
+                logger.info(f"Modified search query to: {query}")
+            
             # Construct the search URL
             search_url = f"{self.base_url}/search/?q={query}&page={page}"
             logger.info(f"Searching {search_url}")
@@ -54,29 +61,76 @@ class PalmettoScraper:
             product_items = soup.select('.product-item')
             logger.info(f"Found {len(product_items)} product items")
             
+            # If no results with standard selectors, try alternative selectors
+            if not product_items:
+                logger.info("No products found with standard selectors, trying alternatives")
+                product_items = soup.select('.product-grid-tile')
+            
+            if not product_items:
+                logger.info("Still no products found, trying generic product containers")
+                product_items = soup.select('.product')
+            
+            logger.info(f"After trying alternative selectors: {len(product_items)} products")
+            
+            # For debugging - log the first 200 chars of the HTML
+            logger.info(f"HTML snippet: {response.text[:200]}...")
+            
             for item in product_items:
                 try:
-                    # Extract product details
-                    title_elem = item.select_one('.product-title')
-                    price_elem = item.select_one('.price .price-sales')
-                    link_elem = item.select_one('a.name-link')
+                    # Try different selectors for product details based on site structure
+                    title_elem = (item.select_one('.product-title') or 
+                                 item.select_one('.product-name') or 
+                                 item.select_one('h2.name') or
+                                 item.select_one('.title'))
+                    
+                    price_elem = (item.select_one('.price .price-sales') or 
+                                 item.select_one('.product-price') or
+                                 item.select_one('.price'))
+                    
+                    link_elem = (item.select_one('a.name-link') or 
+                                item.select_one('a.product-link') or
+                                item.select_one('a'))
                     
                     if not title_elem or not link_elem:
+                        logger.info("Skipping item: missing title or link element")
                         continue
                     
-                    title = title_elem.text.strip()
+                    # Get text content
+                    title = title_elem.text.strip() if hasattr(title_elem, 'text') else "Unknown Product"
+                    logger.info(f"Found product: {title}")
                     
-                    # Skip if not ammunition
-                    ammo_keywords = ['ammo', 'ammunition', 'round', 'rounds', 'cartridge', 'cartridges']
-                    if not any(keyword in title.lower() for keyword in ammo_keywords):
+                    # Use query terms to determine if this is ammo
+                    search_calibers = ['9mm', '5.56', '223', '.223', '22lr', '.22', '308', '.308', '45acp', '.45']
+                    is_relevant = False
+                    
+                    # Check if any of our search calibers is in the title
+                    for caliber in search_calibers:
+                        if caliber in title.lower().replace(' ', ''):
+                            is_relevant = True
+                            break
+                    
+                    # Also check for ammunition keywords
+                    ammo_keywords = ['ammo', 'ammunition', 'round', 'rounds', 'cartridge', 'cartridges', 'bullet', 'bullets']
+                    if any(keyword in title.lower() for keyword in ammo_keywords):
+                        is_relevant = True
+                    
+                    if not is_relevant:
+                        logger.info(f"Skipping - not ammunition: {title}")
                         continue
                     
                     # Extract price if available
-                    price = price_elem.text.strip() if price_elem else "Price not available"
+                    price = price_elem.text.strip() if (price_elem and hasattr(price_elem, 'text')) else "Price not available"
                     
                     # Extract product link
-                    product_link = link_elem['href']
-                    full_url = urljoin(self.base_url, product_link)
+                    if hasattr(link_elem, 'get') and link_elem.get('href'):
+                        product_link = link_elem['href']
+                        if product_link.startswith('http'):
+                            full_url = product_link
+                        else:
+                            full_url = urljoin(self.base_url, product_link)
+                    else:
+                        logger.info(f"Skipping - no valid link for: {title}")
+                        continue
                     
                     # Add to results
                     results.append({
