@@ -5,7 +5,8 @@
 .form-text,
 .small,
 small {
-    color: #d0d0d0 !important;
+    color: #e6e6e6 !important;
+    font-weight: 500 !important;
 }
 
 /* Brighten backgrounds */
@@ -22,8 +23,8 @@ small {
 
 /* Improved visibility for cards and product details */
 .product-details .text-muted {
-    color: #b8c7ce !important;
-    font-weight: 500;
+    color: #ffffff !important;
+    font-weight: 600;
 }
 
 .card-body .row {
@@ -55,6 +56,13 @@ a:not(.btn),
 a:hover:not(.btn),
 .btn-link:hover {
     color: #ff8c9a;
+}
+
+/* Improve card styles for better visibility */
+.card.bg-secondary {
+    background-color: #32383e !important;
+    border: 1px solid #4a5056;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Better focus states */
