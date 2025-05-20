@@ -95,3 +95,80 @@ class CaliberThreshold(db.Model):
             "critical_threshold": self.critical_threshold,
             "target_stock": self.target_stock
         }
+
+class RangeTrip(db.Model):
+    """Represents a range trip where ammunition was used"""
+    __tablename__ = 'range_trips'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    date = db.Column(db.Date, nullable=False, default=datetime.utcnow().date)
+    location = db.Column(db.String(100), nullable=True)
+    notes = db.Column(db.Text, nullable=True)
+    status = db.Column(db.String(20), nullable=False, default='active')  # active, completed
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationship with ammo items
+    items = db.relationship('RangeTripItem', backref='range_trip', lazy=True, cascade='all, delete-orphan')
+
+    def __init__(self, name, date=None, location=None, notes=None):
+        self.name = name
+        self.date = date if date else datetime.utcnow().date()
+        self.location = location
+        self.notes = notes
+        self.status = 'active'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'date': self.date.isoformat() if self.date else None,
+            'location': self.location,
+            'notes': self.notes,
+            'status': self.status,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            'items': [item.to_dict() for item in self.items]
+        }
+
+class RangeTripItem(db.Model):
+    """Represents ammo items checked out for a range trip"""
+    __tablename__ = 'range_trip_items'
+
+    id = db.Column(db.Integer, primary_key=True)
+    range_trip_id = db.Column(db.Integer, db.ForeignKey('range_trips.id'), nullable=False)
+    ammo_box_id = db.Column(db.Integer, db.ForeignKey('ammo_boxes.id'), nullable=True)
+    name = db.Column(db.String(255), nullable=False)
+    caliber = db.Column(db.String(50), nullable=False)
+    count_per_box = db.Column(db.Integer, nullable=False)
+    quantity_out = db.Column(db.Integer, nullable=False)  # Quantity checked out
+    quantity_in = db.Column(db.Integer, nullable=False, default=0)  # Quantity checked back in
+    rounds_used = db.Column(db.Integer, nullable=False, default=0)  # Rounds used during trip
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __init__(self, range_trip_id, name, caliber, count_per_box, quantity_out, ammo_box_id=None):
+        self.range_trip_id = range_trip_id
+        self.ammo_box_id = ammo_box_id
+        self.name = name
+        self.caliber = caliber
+        self.count_per_box = count_per_box
+        self.quantity_out = quantity_out
+        self.quantity_in = 0
+        self.rounds_used = 0
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'range_trip_id': self.range_trip_id,
+            'ammo_box_id': self.ammo_box_id,
+            'name': self.name,
+            'caliber': self.caliber,
+            'count_per_box': self.count_per_box,
+            'quantity_out': self.quantity_out,
+            'quantity_in': self.quantity_in,
+            'rounds_used': self.rounds_used,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }

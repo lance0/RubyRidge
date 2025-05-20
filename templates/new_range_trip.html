@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 offset-lg-2">
+        <div class="card shadow-lg border-0 rounded-lg mt-2 mb-4 bg-dark text-white">
+            <div class="card-header">
+                <h2 class="text-danger mb-0"><i class="fas fa-shooting-target me-2"></i>New Range Trip</h2>
+            </div>
+            
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('new_range_trip') }}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Trip Name</label>
+                        <input type="text" class="form-control bg-secondary text-white" id="name" name="name" 
+                               placeholder="e.g. Weekend Shooting Practice" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control bg-secondary text-white" id="date" name="date" 
+                               value="{{ today }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control bg-secondary text-white" id="location" name="location" 
+                               placeholder="e.g. Big Sky Shooting Range">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control bg-secondary text-white" id="notes" name="notes" rows="3"
+                                  placeholder="Any additional notes about this range trip"></textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('range_trips') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check me-1"></i> Create Range Trip
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

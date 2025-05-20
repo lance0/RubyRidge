@@ -4,7 +4,8 @@ import json
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session, Response
 from werkzeug.middleware.proxy_fix import ProxyFix
 import requests
-from models import db, AmmoBox, UpcData
+from datetime import datetime, date
+from models import db, AmmoBox, UpcData, RangeTrip, RangeTripItem
 from sqlalchemy import func
 
 # Configure logging
@@ -200,6 +201,207 @@ def lookup_upc(upc):
 @app.route('/')
 def home():
     return render_template('index.html')
+
+# Range Trips
+@app.route('/range-trips')
+def range_trips():
+    # Get all range trips, most recent first
+    trips = RangeTrip.query.order_by(RangeTrip.date.desc()).all()
+    
+    # Active trips are ones where the status is 'active'
+    active_trips = [trip for trip in trips if trip.status == 'active']
+    
+    # Completed trips are ones where the status is 'completed'
+    completed_trips = [trip for trip in trips if trip.status == 'completed']
+    
+    return render_template('range_trips.html', 
+                          active_trips=active_trips,
+                          completed_trips=completed_trips)
+
+@app.route('/range-trips/<int:trip_id>')
+def view_range_trip(trip_id):
+    # Get the range trip by ID
+    trip = RangeTrip.query.get_or_404(trip_id)
+    
+    # Get all items for this range trip
+    trip_items = RangeTripItem.query.filter_by(range_trip_id=trip_id).all()
+    
+    # Calculate summary statistics
+    total_rounds_out = sum(item.quantity_out * item.count_per_box for item in trip_items)
+    total_rounds_in = sum(item.quantity_in * item.count_per_box for item in trip_items)
+    total_rounds_used = sum(item.rounds_used for item in trip_items)
+    
+    # Group items by caliber
+    items_by_caliber = {}
+    for item in trip_items:
+        if item.caliber not in items_by_caliber:
+            items_by_caliber[item.caliber] = []
+        items_by_caliber[item.caliber].append(item)
+    
+    return render_template('view_range_trip.html', 
+                          trip=trip,
+                          trip_items=trip_items,
+                          items_by_caliber=items_by_caliber,
+                          total_rounds_out=total_rounds_out,
+                          total_rounds_in=total_rounds_in,
+                          total_rounds_used=total_rounds_used)
+
+@app.route('/range-trips/new', methods=['GET', 'POST'])
+def new_range_trip():
+    if request.method == 'POST':
+        # Create a new range trip
+        name = request.form.get('name')
+        trip_date = request.form.get('date')
+        location = request.form.get('location')
+        notes = request.form.get('notes')
+        
+        # Convert date string to Python date object
+        if trip_date:
+            trip_date = datetime.strptime(trip_date, '%Y-%m-%d').date()
+        else:
+            trip_date = date.today()
+        
+        # Create the range trip
+        trip = RangeTrip(
+            name=name,
+            date=trip_date,
+            location=location,
+            notes=notes
+        )
+        
+        db.session.add(trip)
+        db.session.commit()
+        
+        flash('Range trip created successfully!', 'success')
+        return redirect(url_for('checkout_ammo', trip_id=trip.id))
+    
+    # For GET requests, show the form
+    today = date.today().isoformat()
+    return render_template('new_range_trip.html', today=today)
+
+@app.route('/range-trips/<int:trip_id>/checkout', methods=['GET', 'POST'])
+def checkout_ammo(trip_id):
+    # Get the range trip
+    trip = RangeTrip.query.get_or_404(trip_id)
+    
+    if trip.status != 'active':
+        flash('This range trip is already completed and cannot be modified.', 'warning')
+        return redirect(url_for('view_range_trip', trip_id=trip_id))
+    
+    if request.method == 'POST':
+        # Get the checked out ammo
+        ammo_ids = request.form.getlist('ammo_id')
+        quantities = request.form.getlist('quantity')
+        
+        # Check if we have valid data
+        if len(ammo_ids) != len(quantities):
+            flash('Invalid form data. Please try again.', 'danger')
+            return redirect(url_for('checkout_ammo', trip_id=trip_id))
+        
+        # Process each ammo selection
+        for i in range(len(ammo_ids)):
+            ammo_id = ammo_ids[i]
+            quantity = int(quantities[i])
+            
+            if quantity <= 0:
+                continue  # Skip if quantity is zero or negative
+            
+            # Get the ammo box from inventory
+            ammo_box = AmmoBox.query.get(ammo_id)
+            
+            if ammo_box.quantity < quantity:
+                flash(f'Not enough {ammo_box.name} available in inventory.', 'danger')
+                continue
+            
+            # Create a range trip item
+            trip_item = RangeTripItem(
+                range_trip_id=trip_id,
+                ammo_box_id=ammo_box.id,
+                name=ammo_box.name,
+                caliber=ammo_box.caliber,
+                count_per_box=ammo_box.count_per_box,
+                quantity_out=quantity
+            )
+            
+            # Update the inventory
+            ammo_box.quantity -= quantity
+            ammo_box.update_total_rounds()
+            
+            db.session.add(trip_item)
+        
+        db.session.commit()
+        flash('Ammunition checked out successfully!', 'success')
+        return redirect(url_for('view_range_trip', trip_id=trip_id))
+    
+    # Get all inventory items for checkout
+    inventory = AmmoBox.query.filter(AmmoBox.quantity > 0).order_by(AmmoBox.caliber, AmmoBox.name).all()
+    
+    # Group inventory by caliber
+    inventory_by_caliber = {}
+    for item in inventory:
+        if item.caliber not in inventory_by_caliber:
+            inventory_by_caliber[item.caliber] = []
+        inventory_by_caliber[item.caliber].append(item)
+    
+    return render_template('checkout_ammo.html', 
+                          trip=trip,
+                          inventory_by_caliber=inventory_by_caliber)
+
+@app.route('/range-trips/<int:trip_id>/checkin', methods=['GET', 'POST'])
+def checkin_ammo(trip_id):
+    # Get the range trip
+    trip = RangeTrip.query.get_or_404(trip_id)
+    
+    if trip.status != 'active':
+        flash('This range trip is already completed and cannot be modified.', 'warning')
+        return redirect(url_for('view_range_trip', trip_id=trip_id))
+    
+    if request.method == 'POST':
+        # Get form data
+        item_ids = request.form.getlist('item_id')
+        quantities_in = request.form.getlist('quantity_in')
+        complete_trip = 'complete_trip' in request.form
+        
+        # Process each trip item
+        for i in range(len(item_ids)):
+            item_id = item_ids[i]
+            quantity_in = int(quantities_in[i])
+            
+            # Get the trip item
+            trip_item = RangeTripItem.query.get(item_id)
+            
+            if quantity_in > trip_item.quantity_out:
+                flash(f'Cannot check in more than was checked out for {trip_item.name}.', 'danger')
+                continue
+            
+            # Update the trip item
+            trip_item.quantity_in = quantity_in
+            trip_item.rounds_used = (trip_item.quantity_out - quantity_in) * trip_item.count_per_box
+            
+            # Return ammo to inventory if there's some left
+            if quantity_in > 0 and trip_item.ammo_box_id:
+                ammo_box = AmmoBox.query.get(trip_item.ammo_box_id)
+                if ammo_box:
+                    ammo_box.quantity += quantity_in
+                    ammo_box.update_total_rounds()
+        
+        # If we're completing the trip, update its status
+        if complete_trip:
+            trip.status = 'completed'
+        
+        db.session.commit()
+        
+        if complete_trip:
+            flash('Range trip completed successfully!', 'success')
+            return redirect(url_for('range_trips'))
+        else:
+            flash('Ammunition checked in successfully!', 'success')
+            return redirect(url_for('view_range_trip', trip_id=trip_id))
+    
+    # Get all items for this range trip that can be checked in
+    trip_items = RangeTripItem.query.filter_by(range_trip_id=trip_id).all()
+    
+    return render_template('checkin_ammo.html', trip=trip, trip_items=trip_items)
 
 @app.route('/inventory')
 def inventory():

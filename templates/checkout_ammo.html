@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 offset-lg-1">
+        <div class="card shadow-lg border-0 rounded-lg mt-2 mb-4 bg-dark text-white">
+            <div class="card-header">
+                <h2 class="text-danger mb-0"><i class="fas fa-sign-out-alt me-2"></i>Checkout Ammunition</h2>
+                <p class="text-muted mb-0">Range Trip: {{ trip.name }} ({{ trip.date }})</p>
+            </div>
+            
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('checkout_ammo', trip_id=trip.id) }}">
+                    <div class="alert alert-info">
+                        <p class="mb-0">Select ammunition to checkout for this range trip. You can adjust the quantity for each item.</p>
+                    </div>
+                    
+                    {% if inventory_by_caliber %}
+                        {% for caliber, items in inventory_by_caliber.items() %}
+                            <div class="card mb-3 bg-secondary">
+                                <div class="card-header">
+                                    <h5 class="mb-0">{{ caliber }}</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-dark table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Count/Box</th>
+                                                    <th>Available</th>
+                                                    <th>Checkout Quantity</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for item in items %}
+                                                <tr>
+                                                    <td>{{ item.name }}</td>
+                                                    <td>{{ item.count_per_box }}</td>
+                                                    <td>{{ item.quantity }} boxes ({{ item.total_rounds }} rounds)</td>
+                                                    <td>
+                                                        <input type="hidden" name="ammo_id" value="{{ item.id }}">
+                                                        <input type="number" name="quantity" class="form-control form-control-sm bg-dark text-white" 
+                                                               min="0" max="{{ item.quantity }}" value="0">
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        
+                        <div class="d-flex justify-content-between mt-3">
+                            <a href="{{ url_for('view_range_trip', trip_id=trip.id) }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Back
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check me-1"></i> Checkout Selected Ammunition
+                            </button>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <p class="mb-0">No ammunition available in inventory. <a href="{{ url_for('inventory') }}" class="alert-link">Add some ammunition</a> first.</p>
+                        </div>
+                        
+                        <div class="d-flex justify-content-start">
+                            <a href="{{ url_for('view_range_trip', trip_id=trip.id) }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Back
+                            </a>
+                        </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
