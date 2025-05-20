@@ -19,7 +19,7 @@ def gunsafe():
     makes = db.session.query(Firearm.make).filter_by(user_id=current_user.id).distinct().all()
     makes = [m[0] for m in makes]
     
-    return render_template('gunsafe.html', 
+    return render_template('gunsafe_simple.html', 
                           firearms=user_firearms, 
                           calibers=calibers, 
                           makes=makes)
