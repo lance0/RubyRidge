@@ -215,8 +215,11 @@
 <!-- Chart.js is already included in base.html -->
 <!-- Pass chart data to JavaScript -->
 <script>
-    // Make chart data available to the JavaScript
-    const chartData = {{ chart_data|safe }};
+    // Make chart data available as a global variable
+    window.inventoryChartData = {{ chart_data|safe }};
+    
+    // Debug output
+    console.log("Chart data loaded:", window.inventoryChartData);
 </script>
 <script src="{{ url_for('static', filename='js/inventory.js') }}"></script>
 {% endblock %}

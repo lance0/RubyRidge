@@ -246,18 +246,21 @@ document.addEventListener('DOMContentLoaded', function() {
      * Initialize the ammunition inventory chart with threshold visualization
      */
     function initializeAmmoChart() {
-        if (!chartData) return;
+        if (!window.inventoryChartData) {
+            console.error("Chart data not available");
+            return;
+        }
         
         const ctx = ammoChartCanvas.getContext('2d');
         
         // Convert the chart data
-        const labels = chartData.labels;
-        const values = chartData.values;
+        const labels = window.inventoryChartData.labels;
+        const values = window.inventoryChartData.values;
         
         // Set up threshold data
-        const lowThresholds = chartData.thresholds.low;
-        const criticalThresholds = chartData.thresholds.critical;
-        const targetStocks = chartData.thresholds.target;
+        const lowThresholds = window.inventoryChartData.thresholds.low;
+        const criticalThresholds = window.inventoryChartData.thresholds.critical;
+        const targetStocks = window.inventoryChartData.thresholds.target;
         
         // Create horizontal line annotations for thresholds
         const thresholdDatasets = [];
