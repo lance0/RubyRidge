@@ -1,50 +1,33 @@
 {% extends "base.html" %}
 
-{% block title %}Login - RubyRidge Ammo Inventory{% endblock %}
+{% block title %}Quick Login - RubyRidge Ammo Inventory{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <div class="card mt-5">
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-danger">
                 <div class="card-header bg-danger text-white">
-                    <h3 class="mb-0"><i class="fas fa-sign-in-alt"></i> Quick Login</h3>
+                    <h3 class="mb-0"><i class="fas fa-sign-in-alt me-2"></i>Quick Login</h3>
                 </div>
                 <div class="card-body">
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                    
-                    <div class="alert alert-info">
-                        <p><strong>Default credentials:</strong></p>
-                        <p>Username: <code>budd</code><br>
-                        Password: <code>dwyer</code></p>
-                    </div>
-                    
-                    <form method="POST">
+                    <form method="POST" action="{{ url_for('quick_auth.quick_login') }}">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> This is a simplified login that creates and uses the default account.
+                        </div>
+                        
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                <input type="text" class="form-control" id="username" name="username" value="budd">
-                            </div>
+                            <input type="text" class="form-control" id="username" name="username" value="budd" readonly>
                         </div>
+                        
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                <input type="password" class="form-control" id="password" name="password" value="dwyer">
-                            </div>
+                            <input type="password" class="form-control" id="password" name="password" value="dwyer" readonly>
                         </div>
+                        
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-danger"><i class="fas fa-sign-in-alt"></i> Login</button>
+                            <button type="submit" class="btn btn-danger"><i class="fas fa-sign-in-alt me-2"></i>Log In</button>
                         </div>
                     </form>
                 </div>
