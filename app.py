@@ -65,7 +65,7 @@ from firearm_routes import firearms
 from simple_auth import auth_simple
 from quick_auth import quick_auth
 app.register_blueprint(auth, url_prefix='/auth')
-app.register_blueprint(firearms)
+app.register_blueprint(firearms, url_prefix='/firearms')
 app.register_blueprint(auth_simple)
 app.register_blueprint(quick_auth)
 

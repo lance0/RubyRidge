@@ -94,13 +94,16 @@ def logout():
 @login_required
 def profile():
     """Display user profile information"""
-    user_ammo = current_user.ammo_boxes.all()
-    user_firearms = current_user.firearms.all()
-    user_range_trips = current_user.range_trips.all()
+    # Get user's inventory items directly from the database
+    from models import AmmoBox, Firearm, RangeTrip
+    
+    user_ammo = AmmoBox.query.filter_by(user_id=current_user.id).all()
+    user_firearms = Firearm.query.filter_by(user_id=current_user.id).all()
+    user_range_trips = RangeTrip.query.filter_by(user_id=current_user.id).all()
     
     # Calculate total rounds and inventory value
     total_rounds = sum(box.total_rounds for box in user_ammo)
-    total_value = sum(box.purchase_price * box.quantity for box in user_ammo if box.purchase_price)
+    total_value = sum((box.purchase_price or 0) * box.quantity for box in user_ammo)
     
     return render_template('profile.html', 
                          user=current_user,
