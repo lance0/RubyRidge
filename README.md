@@ -10,6 +10,7 @@ A mobile-responsive ammunition inventory web application with barcode scanning c
 - **Inventory Management**: Track ammunition by caliber, count, and quantity
 - **UPC Database**: Maintain a database of ammunition UPC codes
 - **Product Search**: Find ammunition by caliber and import details to your database
+- **UPC Item DB API Integration**: Automatic lookup of UPCs in external database
 - **Mobile-Responsive**: Works on all devices from desktop to smartphones
 - **Tactical Design**: Modern UI with a tactical aesthetic
 
@@ -19,8 +20,12 @@ A mobile-responsive ammunition inventory web application with barcode scanning c
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+), Bootstrap 5
 - **Barcode Scanning**: QuaggaJS library for in-browser scanning
 - **Web Scraping**: Product lookup capabilities for ammunition data
+- **External APIs**: UPC Item DB API integration
+- **Containerization**: Docker and Docker Compose support
 
 ## Installation
+
+### Standard Installation
 
 1. Clone this repository
    ```
@@ -36,24 +41,60 @@ A mobile-responsive ammunition inventory web application with barcode scanning c
 
 3. Install dependencies
    ```
-   pip install -r requirements.txt
+   pip install -e .
    ```
 
-4. Set up the environment variables
+4. Set up PostgreSQL database
+   - Install PostgreSQL if not already installed
+   - Create a database: `createdb ammo_inventory`
+
+5. Set up the environment variables
    ```
    export DATABASE_URL=postgresql://user:password@localhost/ammo_inventory
    export FLASK_SECRET_KEY=your_secret_key
    ```
 
-5. Initialize the database
+6. Initialize the database
    ```
    flask db upgrade
    ```
 
-6. Run the application
+7. Run the application
    ```
    gunicorn --bind 0.0.0.0:5000 main:app
    ```
+
+### Docker Installation (Recommended for Production)
+
+1. Clone this repository
+   ```
+   git clone https://github.com/yourname/rubyridge-ammo-inventory.git
+   cd rubyridge-ammo-inventory
+   ```
+
+2. Build and start the containers
+   ```
+   docker-compose up -d
+   ```
+
+3. The application will be available at http://localhost:5000
+
+4. To stop the application
+   ```
+   docker-compose down
+   ```
+
+### Production Deployment Considerations
+
+1. **Environment Variables**: Update environment variables in docker-compose.yml with secure values:
+   - FLASK_SECRET_KEY: Use a strong, randomly generated key
+   - PostgreSQL credentials: Change from default values
+
+2. **HTTPS Setup**: In production, configure a reverse proxy (Nginx, Traefik) to handle HTTPS
+
+3. **Database Backups**: Configure regular PostgreSQL backups
+
+4. **Logging**: Set up external logging service or volume mount for log persistence
 
 ## Usage
 
@@ -79,6 +120,12 @@ For the best barcode scanning experience:
 4. Position the barcode within the scanning area
 5. The application will automatically detect and process valid UPC codes
 
+## API Integrations
+
+### UPC Item DB API
+
+The application integrates with the UPC Item DB API to look up UPC codes that aren't found in the local database. This provides a fallback for identifying ammunition products. The free tier allows 100 lookups per day.
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
@@ -88,3 +135,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - QuaggaJS for the barcode scanning capabilities
 - Bootstrap for the responsive design framework
 - Font Awesome for the icon set
+- UPC Item DB for the UPC lookup API

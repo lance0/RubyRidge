@@ -240,6 +240,10 @@ body {
     overflow: hidden;
 }
 
+.card li {
+    color: #ffffff !important;
+}
+
 .card-header {
     border-bottom: 2px solid var(--ruby-red);
     background-color: var(--midnight) !important;
