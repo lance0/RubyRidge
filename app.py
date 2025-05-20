@@ -113,6 +113,17 @@ def initialize_database():
                 )
                 db.session.add(ammo_box)
         
+        # Add a sample range trip if none exist
+        if RangeTrip.query.count() == 0:
+            # Add a sample range trip for demonstration
+            sample_trip = RangeTrip(
+                name="Sample Range Trip",
+                date=date.today(),
+                location="Local Range",
+                notes="Sample trip created automatically"
+            )
+            db.session.add(sample_trip)
+        
         db.session.commit()
         logging.info("Database initialized with default data")
 
