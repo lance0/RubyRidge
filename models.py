@@ -68,3 +68,30 @@ class UpcData(db.Model):
             "caliber": self.caliber,
             "count_per_box": self.count_per_box
         }
+
+class CaliberThreshold(db.Model):
+    """Stores threshold values for ammunition calibers"""
+    __tablename__ = 'caliber_thresholds'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    caliber = db.Column(db.String(50), nullable=False, unique=True)
+    low_threshold = db.Column(db.Integer, nullable=False, default=100)
+    critical_threshold = db.Column(db.Integer, nullable=False, default=50)
+    target_stock = db.Column(db.Integer, nullable=False, default=500)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __init__(self, caliber, low_threshold=100, critical_threshold=50, target_stock=500):
+        self.caliber = caliber
+        self.low_threshold = low_threshold
+        self.critical_threshold = critical_threshold
+        self.target_stock = target_stock
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "caliber": self.caliber,
+            "low_threshold": self.low_threshold,
+            "critical_threshold": self.critical_threshold,
+            "target_stock": self.target_stock
+        }

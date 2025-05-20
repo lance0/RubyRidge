@@ -4,7 +4,7 @@ import json
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session
 from werkzeug.middleware.proxy_fix import ProxyFix
 import requests
-from models import db, AmmoBox, UpcData
+from models import db, AmmoBox, UpcData, CaliberThreshold
 from sqlalchemy import func
 
 # Configure logging
@@ -80,6 +80,46 @@ DEFAULT_INVENTORY = [
     }
 ]
 
+# Default caliber thresholds
+DEFAULT_THRESHOLDS = [
+    {
+        "caliber": "9mm Luger",
+        "low_threshold": 200,
+        "critical_threshold": 100,
+        "target_stock": 500
+    },
+    {
+        "caliber": ".223 Remington",
+        "low_threshold": 150,
+        "critical_threshold": 60,
+        "target_stock": 400
+    },
+    {
+        "caliber": "5.56 NATO",
+        "low_threshold": 150,
+        "critical_threshold": 60,
+        "target_stock": 400
+    },
+    {
+        "caliber": ".45 ACP",
+        "low_threshold": 100,
+        "critical_threshold": 50,
+        "target_stock": 300
+    },
+    {
+        "caliber": ".22 LR",
+        "low_threshold": 300,
+        "critical_threshold": 150,
+        "target_stock": 1000
+    },
+    {
+        "caliber": "12 Gauge",
+        "low_threshold": 50,
+        "critical_threshold": 25,
+        "target_stock": 200
+    }
+]
+
 # Initialize database with default data
 def initialize_database():
     with app.app_context():
@@ -109,6 +149,17 @@ def initialize_database():
                     notes=item["notes"]
                 )
                 db.session.add(ammo_box)
+        
+        # Add default caliber thresholds if they don't exist
+        for threshold in DEFAULT_THRESHOLDS:
+            if not CaliberThreshold.query.filter_by(caliber=threshold["caliber"]).first():
+                caliber_threshold = CaliberThreshold(
+                    caliber=threshold["caliber"],
+                    low_threshold=threshold["low_threshold"],
+                    critical_threshold=threshold["critical_threshold"],
+                    target_stock=threshold["target_stock"]
+                )
+                db.session.add(caliber_threshold)
         
         db.session.commit()
         logging.info("Database initialized with default data")
@@ -217,13 +268,65 @@ def inventory():
     # Calculate total rounds
     total_rounds = db.session.query(func.sum(AmmoBox.total_rounds)).scalar() or 0
     
+    # Get thresholds for each caliber
+    all_thresholds = CaliberThreshold.query.all()
+    threshold_data = {threshold.caliber: threshold.to_dict() for threshold in all_thresholds}
+    
+    # For each caliber without a threshold, create default values
+    for caliber in caliber_totals:
+        if caliber not in threshold_data:
+            # Create a default threshold
+            new_threshold = CaliberThreshold(
+                caliber=caliber,
+                low_threshold=100,
+                critical_threshold=50,
+                target_stock=500
+            )
+            db.session.add(new_threshold)
+            threshold_data[caliber] = new_threshold.to_dict()
+    
+    # Commit any new thresholds
+    db.session.commit()
+    
+    # Prepare chart data
+    chart_data = {
+        'labels': list(caliber_totals.keys()),
+        'values': list(caliber_totals.values()),
+        'thresholds': {
+            'low': [threshold_data.get(caliber, {'low_threshold': 100})['low_threshold'] 
+                   for caliber in caliber_totals],
+            'critical': [threshold_data.get(caliber, {'critical_threshold': 50})['critical_threshold'] 
+                        for caliber in caliber_totals],
+            'target': [threshold_data.get(caliber, {'target_stock': 500})['target_stock'] 
+                     for caliber in caliber_totals]
+        }
+    }
+    
     # Convert database objects to dictionaries for the template
     inventory_items = [item.to_dict() for item in ammo_inventory]
+    
+    # Group inventory by caliber for the dashboard
+    caliber_inventory = {}
+    for item in ammo_inventory:
+        caliber = item.caliber
+        if caliber not in caliber_inventory:
+            caliber_inventory[caliber] = {
+                'items': [],
+                'total_rounds': 0,
+                'box_count': 0,
+                'threshold': threshold_data.get(caliber, {})
+            }
+        caliber_inventory[caliber]['items'].append(item.to_dict())
+        caliber_inventory[caliber]['total_rounds'] += item.total_rounds
+        caliber_inventory[caliber]['box_count'] += item.quantity
     
     return render_template('inventory.html', 
                           inventory=inventory_items, 
                           caliber_totals=caliber_totals,
-                          total_rounds=total_rounds)
+                          total_rounds=total_rounds,
+                          threshold_data=threshold_data,
+                          chart_data=json.dumps(chart_data),
+                          caliber_inventory=caliber_inventory)
 
 @app.route('/scan')
 def scan():
