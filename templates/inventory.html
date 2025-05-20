@@ -35,10 +35,34 @@
                                             <div>
                                                 <div class="fw-bold">{{ caliber }}</div>
                                                 <div>{{ count }} rounds</div>
+                                                {% if caliber in caliber_inventory %}
+                                                    {% set threshold = caliber_inventory[caliber].threshold %}
+                                                    {% if caliber_inventory[caliber].total_rounds <= threshold.critical %}
+                                                        <div class="badge bg-danger">CRITICAL</div>
+                                                    {% elif caliber_inventory[caliber].total_rounds <= threshold.low %}
+                                                        <div class="badge bg-warning text-dark">LOW</div>
+                                                    {% endif %}
+                                                {% endif %}
                                             </div>
                                         </div>
                                     </div>
                                     {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Inventory Chart -->
+                <div class="row mb-4">
+                    <div class="col-lg-12">
+                        <div class="card bg-secondary text-white">
+                            <div class="card-header">
+                                <h5 class="mb-0">Inventory Visualization</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" style="position: relative; height:300px;">
+                                    <canvas id="ammoChart"></canvas>
                                 </div>
                             </div>
                         </div>

@@ -10,6 +10,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const caliberFilter = document.getElementById('caliberFilter');
     const editItemModal = document.getElementById('editItemModal');
     const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+    const ammoChartCanvas = document.getElementById('ammoChart');
+    
+    // Chart data from server (if available)
+    let chartData = null;
+    try {
+        if (document.getElementById('chart-data')) {
+            chartData = JSON.parse(document.getElementById('chart-data').textContent);
+        }
+    } catch (e) {
+        console.error('Error parsing chart data:', e);
+    }
     
     // Form fields for editing
     const editItemForm = document.getElementById('editItemForm');
