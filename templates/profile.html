@@ -1,0 +1,183 @@
+{% extends "layout.html" %}
+
+{% block title %}User Profile - RubyRidge Ammo Inventory{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1 class="border-bottom pb-2 mb-3"><i class="fas fa-user-circle"></i> User Profile</h1>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="fas fa-user"></i> Account Information</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        {% if user.profile_image_url %}
+                        <img src="{{ user.profile_image_url }}" alt="{{ user.username }}" class="rounded-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+                        {% else %}
+                        <i class="fas fa-user-circle fa-7x text-muted"></i>
+                        {% endif %}
+                    </div>
+                    
+                    <h5 class="card-title">{{ user.username }}</h5>
+                    <p><i class="fas fa-envelope"></i> {{ user.email }}</p>
+                    
+                    {% if user.first_name or user.last_name %}
+                    <p><i class="fas fa-id-badge"></i> {{ user.first_name }} {{ user.last_name }}</p>
+                    {% endif %}
+                    
+                    <p><i class="fas fa-calendar-alt"></i> Member since: {{ user.created_at.strftime('%B %d, %Y') }}</p>
+                    {% if user.last_login %}
+                    <p><i class="fas fa-sign-in-alt"></i> Last login: {{ user.last_login.strftime('%B %d, %Y %H:%M') }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="fas fa-chart-pie"></i> Inventory Summary</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-danger h-100">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Ammo Boxes</h6>
+                                    <h3 class="display-4">{{ ammo_boxes|length }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-danger h-100">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Total Rounds</h6>
+                                    <h3 class="display-4">{{ total_rounds }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-danger h-100">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Inventory Value</h6>
+                                    <h3 class="display-4">${{ '%.2f'|format(total_value) }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="fas fa-gun"></i> Firearms ({{ firearms|length }})</h4>
+                </div>
+                <div class="card-body">
+                    {% if firearms %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Make/Model</th>
+                                    <th>Caliber</th>
+                                    <th>Type</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for firearm in firearms %}
+                                <tr>
+                                    <td>{{ firearm.name }}</td>
+                                    <td>{{ firearm.make }} {{ firearm.model }}</td>
+                                    <td>{{ firearm.caliber }}</td>
+                                    <td>{{ firearm.type|title }}</td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> You haven't added any firearms to your GunSafe yet.
+                        <a href="#" class="alert-link">Add your first firearm</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="fas fa-hiking"></i> Recent Range Trips ({{ range_trips|length }})</h4>
+                </div>
+                <div class="card-body">
+                    {% if range_trips %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Name</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for trip in range_trips %}
+                                <tr>
+                                    <td>{{ trip.date.strftime('%m/%d/%Y') }}</td>
+                                    <td>{{ trip.name }}</td>
+                                    <td>{{ trip.location or 'N/A' }}</td>
+                                    <td>
+                                        {% if trip.status == 'active' %}
+                                        <span class="badge bg-primary">Active</span>
+                                        {% else %}
+                                        <span class="badge bg-success">Completed</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('view_range_trip', trip_id=trip.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> You haven't recorded any range trips yet.
+                        <a href="{{ url_for('new_range_trip') }}" class="alert-link">Plan your first trip</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

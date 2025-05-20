@@ -5,8 +5,9 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, f
 from werkzeug.middleware.proxy_fix import ProxyFix
 import requests
 from datetime import datetime, date
-from models import db, AmmoBox, UpcData, RangeTrip, RangeTripItem
+from models import db, AmmoBox, UpcData, RangeTrip, RangeTripItem, User, Firearm, RangeTripFirearm, OAuth
 from sqlalchemy import func
+from flask_login import LoginManager, current_user, login_required
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -26,6 +27,21 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Initialize the database with the app
 db.init_app(app)
+
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'
+login_manager.login_message = 'Please log in to access this page.'
+login_manager.login_message_category = 'info'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+    
+# Register blueprints
+from auth_routes import auth
+app.register_blueprint(auth, url_prefix='/auth')
 
 # Create default UPC data
 DEFAULT_UPC_DATA = [
