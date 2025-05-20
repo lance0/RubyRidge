@@ -39,11 +39,43 @@ login_manager.login_message_category = 'info'
 def load_user(user_id):
     return User.query.get(int(user_id))
     
+def initialize_database():
+    """Create tables and set up default data if needed"""
+    with app.app_context():
+        # Execute database migrations
+        from migrate_db import migrate_database
+        migrate_database()
+        
+        # Create default user account if it doesn't exist
+        try:
+            user = User.query.filter_by(username='budd').first()
+            if not user:
+                default_user = User(username='budd', email='budd@example.com')
+                default_user.set_password('dwyer')
+                db.session.add(default_user)
+                db.session.commit()
+                logging.info("Default user account created: username=budd, password=dwyer")
+        except Exception as e:
+            logging.error(f"Error setting up default user: {str(e)}")
+            db.session.rollback()
+    
 # Register blueprints
 from auth_routes import auth
 from firearm_routes import firearms
+from simple_auth import auth_simple
 app.register_blueprint(auth, url_prefix='/auth')
 app.register_blueprint(firearms)
+app.register_blueprint(auth_simple)
+
+# Update login view to use simple auth
+login_manager.login_view = 'auth_simple.login'
+
+# Initialize database with default data 
+try:
+    initialize_database()
+    logging.info("Database initialized with default data")
+except Exception as e:
+    logging.error(f"Error initializing database: {str(e)}")
 
 # Create default UPC data
 DEFAULT_UPC_DATA = [

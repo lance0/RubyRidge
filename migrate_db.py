@@ -113,7 +113,7 @@ def migrate_database():
             conn.execute(text("""
                 CREATE TABLE firearms (
                     id SERIAL PRIMARY KEY,
-                    user_id VARCHAR REFERENCES users(id) NOT NULL,
+                    user_id INTEGER REFERENCES users(id) NOT NULL,
                     name VARCHAR(100) NOT NULL,
                     make VARCHAR(100) NOT NULL,
                     model VARCHAR(100) NOT NULL,
@@ -177,7 +177,7 @@ def migrate_database():
             print("Adding user_id column to range_trips table...")
             conn.execute(text("""
                 ALTER TABLE range_trips 
-                ADD COLUMN user_id VARCHAR REFERENCES users(id)
+                ADD COLUMN user_id INTEGER REFERENCES users(id)
             """))
             
         # Commit all changes
