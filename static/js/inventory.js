@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Initialize ammo chart if canvas and data are available
-    if (ammoChartCanvas && chartData) {
+    if (ammoChartCanvas && window.inventoryChartData) {
         initializeAmmoChart();
     }
     
@@ -89,6 +89,56 @@ document.addEventListener('DOMContentLoaded', function() {
         confirmDelete.addEventListener('click', function() {
             deleteInventoryItem();
         });
+    }
+    
+    // Manual inventory addition
+    const saveNewItem = document.getElementById('saveNewItem');
+    const addInventoryForm = document.getElementById('addInventoryForm');
+    
+    if (saveNewItem) {
+        saveNewItem.addEventListener('click', function() {
+            if (addInventoryForm.checkValidity()) {
+                addInventoryItem();
+            } else {
+                addInventoryForm.reportValidity();
+            }
+        });
+    }
+    
+    // CSV Import/Export
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+    const importCsvBtn = document.getElementById('importCsvBtn');
+    const downloadTemplateBtn = document.getElementById('downloadTemplateBtn');
+    
+    if (exportCsvBtn) {
+        exportCsvBtn.addEventListener('click', exportInventoryCSV);
+    }
+    
+    if (importCsvBtn) {
+        importCsvBtn.addEventListener('click', importInventoryCSV);
+    }
+    
+    if (downloadTemplateBtn) {
+        downloadTemplateBtn.addEventListener('click', downloadCsvTemplate);
+    }
+    
+    // Threshold settings
+    const thresholdCaliber = document.getElementById('thresholdCaliber');
+    const criticalThreshold = document.getElementById('criticalThreshold');
+    const lowThreshold = document.getElementById('lowThreshold');
+    const targetStock = document.getElementById('targetStock');
+    const saveThresholds = document.getElementById('saveThresholds');
+    
+    if (thresholdCaliber) {
+        thresholdCaliber.addEventListener('change', function() {
+            if (thresholdCaliber.value) {
+                loadThresholdsForCaliber(thresholdCaliber.value);
+            }
+        });
+    }
+    
+    if (saveThresholds) {
+        saveThresholds.addEventListener('click', saveThresholdSettings);
     }
     
     /**
@@ -239,6 +289,191 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Error deleting item:', error);
                 showAlert('Error deleting item: ' + error.message, 'danger');
+            });
+    }
+    
+    /**
+     * Add a new inventory item manually
+     */
+    function addInventoryItem() {
+        const addName = document.getElementById('addName');
+        const addUpc = document.getElementById('addUpc');
+        const addCaliber = document.getElementById('addCaliber');
+        const addCountPerBox = document.getElementById('addCountPerBox');
+        const addQuantity = document.getElementById('addQuantity');
+        const addNotes = document.getElementById('addNotes');
+        
+        const newItemData = {
+            name: addName.value,
+            upc: addUpc.value || 'Unknown',
+            caliber: addCaliber.value,
+            count_per_box: parseInt(addCountPerBox.value),
+            quantity: parseInt(addQuantity.value),
+            notes: addNotes.value || ''
+        };
+        
+        fetch('/api/add_inventory', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newItemData)
+        })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Hide the modal
+                    const addModal = bootstrap.Modal.getInstance(document.getElementById('addInventoryModal'));
+                    addModal.hide();
+                    
+                    // Show success message
+                    showAlert('Item added successfully!', 'success');
+                    
+                    // Reload the page to show updated data
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showAlert('Error adding item: ' + result.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error adding item:', error);
+                showAlert('Error adding item: ' + error.message, 'danger');
+            });
+    }
+    
+    /**
+     * Load threshold values for a selected caliber
+     * @param {string} caliber - The caliber to load thresholds for
+     */
+    function loadThresholdsForCaliber(caliber) {
+        fetch(`/api/get_thresholds/${encodeURIComponent(caliber)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Set the threshold values in the form
+                    criticalThreshold.value = data.thresholds.critical || 50;
+                    lowThreshold.value = data.thresholds.low || 100;
+                    targetStock.value = data.thresholds.target || 500;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading thresholds:', error);
+            });
+    }
+    
+    /**
+     * Save threshold settings for a caliber
+     */
+    function saveThresholdSettings() {
+        const caliber = thresholdCaliber.value;
+        
+        if (!caliber) {
+            showAlert('Please select a caliber', 'warning');
+            return;
+        }
+        
+        const thresholdData = {
+            caliber: caliber,
+            critical: parseInt(criticalThreshold.value),
+            low: parseInt(lowThreshold.value),
+            target: parseInt(targetStock.value)
+        };
+        
+        fetch('/api/save_thresholds', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(thresholdData)
+        })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    showAlert('Threshold settings saved! Reload page to see updated charts.', 'success');
+                    
+                    // Optional: reload after a delay to show updated charts
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    showAlert('Error saving thresholds: ' + result.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving thresholds:', error);
+                showAlert('Error saving thresholds: ' + error.message, 'danger');
+            });
+    }
+    
+    /**
+     * Export inventory data as CSV
+     */
+    function exportInventoryCSV() {
+        // Direct download by redirecting to the export endpoint
+        window.location.href = '/api/export_csv';
+    }
+    
+    /**
+     * Download CSV template
+     */
+    function downloadCsvTemplate() {
+        // Direct download by redirecting to the template endpoint
+        window.location.href = '/api/csv_template';
+    }
+    
+    /**
+     * Import inventory data from CSV
+     */
+    function importInventoryCSV() {
+        const csvFile = document.getElementById('csvFile');
+        const csvImportError = document.getElementById('csvImportError');
+        const csvImportSuccess = document.getElementById('csvImportSuccess');
+        
+        // Reset alerts
+        csvImportError.classList.add('d-none');
+        csvImportSuccess.classList.add('d-none');
+        
+        if (!csvFile.files || csvFile.files.length === 0) {
+            csvImportError.textContent = 'Please select a CSV file';
+            csvImportError.classList.remove('d-none');
+            return;
+        }
+        
+        const file = csvFile.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        fetch('/api/import_csv', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    csvImportSuccess.textContent = result.message;
+                    csvImportSuccess.classList.remove('d-none');
+                    
+                    // If there are any errors, show them as well
+                    if (result.errors && result.errors.length > 0) {
+                        csvImportError.textContent = 'Some rows had errors: ' + result.errors.join('; ');
+                        csvImportError.classList.remove('d-none');
+                    }
+                    
+                    // Reload after a delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                } else {
+                    csvImportError.textContent = result.message;
+                    csvImportError.classList.remove('d-none');
+                }
+            })
+            .catch(error => {
+                console.error('Error importing CSV:', error);
+                csvImportError.textContent = 'Error importing CSV: ' + error.message;
+                csvImportError.classList.remove('d-none');
             });
     }
     

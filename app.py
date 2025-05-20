@@ -1,7 +1,7 @@
 import os
 import logging
 import json
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session, Response
 from werkzeug.middleware.proxy_fix import ProxyFix
 import requests
 from models import db, AmmoBox, UpcData
