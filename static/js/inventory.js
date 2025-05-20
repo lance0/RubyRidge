@@ -75,6 +75,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Initialize ammo chart if canvas and data are available
+    if (ammoChartCanvas && chartData) {
+        initializeAmmoChart();
+    }
+    
     // Save changes button click handler
     if (saveItemChanges) {
         saveItemChanges.addEventListener('click', function() {
@@ -243,5 +248,95 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error deleting item:', error);
                 showAlert('Error deleting item: ' + error.message, 'danger');
             });
+    }
+    
+    /**
+     * Initialize the ammunition inventory chart with threshold visualization
+     */
+    function initializeAmmoChart() {
+        if (!chartData) return;
+        
+        const ctx = ammoChartCanvas.getContext('2d');
+        
+        // Convert the chart data
+        const labels = chartData.labels;
+        const values = chartData.values;
+        
+        // Set up threshold data
+        const lowThresholds = chartData.thresholds.low;
+        const criticalThresholds = chartData.thresholds.critical;
+        const targetStocks = chartData.thresholds.target;
+        
+        // Create horizontal line annotations for thresholds
+        const thresholdDatasets = [];
+        
+        // Create the main bar chart with custom colors based on thresholds
+        const barColors = values.map((value, index) => {
+            if (value <= criticalThresholds[index]) {
+                return 'rgba(220, 53, 69, 0.8)'; // Danger red
+            } else if (value <= lowThresholds[index]) {
+                return 'rgba(255, 193, 7, 0.8)'; // Warning yellow
+            } else {
+                return 'rgba(40, 167, 69, 0.8)'; // Success green
+            }
+        });
+        
+        // Create the chart
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Current Inventory',
+                    data: values,
+                    backgroundColor: barColors,
+                    borderColor: barColors.map(color => color.replace('0.8', '1')),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.7)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.8)'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: function(context) {
+                                const index = context.dataIndex;
+                                return [
+                                    `Critical: ${criticalThresholds[index]} rounds`,
+                                    `Low: ${lowThresholds[index]} rounds`,
+                                    `Target: ${targetStocks[index]} rounds`
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 });
