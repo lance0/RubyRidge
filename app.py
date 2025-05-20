@@ -41,7 +41,9 @@ def load_user(user_id):
     
 # Register blueprints
 from auth_routes import auth
+from firearm_routes import firearms
 app.register_blueprint(auth, url_prefix='/auth')
+app.register_blueprint(firearms)
 
 # Create default UPC data
 DEFAULT_UPC_DATA = [
