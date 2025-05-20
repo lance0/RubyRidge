@@ -219,15 +219,46 @@ def range_trips():
     # Get all range trips, most recent first
     trips = RangeTrip.query.order_by(RangeTrip.date.desc()).all()
     
-    # Active trips are ones where the status is 'active'
-    active_trips = [trip for trip in trips if trip.status == 'active']
+    # Calculate statistics
+    total_trips = len(trips)
+    active_trips = sum(1 for trip in trips if trip.status == 'active')
     
-    # Completed trips are ones where the status is 'completed'
-    completed_trips = [trip for trip in trips if trip.status == 'completed']
+    # Calculate total rounds used across all trips
+    total_rounds_used = 0
+    caliber_usage = {}
+    
+    # Process trip items to calculate statistics
+    for trip in trips:
+        trip_items = RangeTripItem.query.filter_by(range_trip_id=trip.id).all()
+        for item in trip_items:
+            total_rounds_used += item.rounds_used
+            
+            # Track usage by caliber
+            if item.caliber in caliber_usage:
+                caliber_usage[item.caliber] += item.rounds_used
+            else:
+                caliber_usage[item.caliber] = item.rounds_used
+    
+    # Get most used caliber
+    most_used_caliber = None
+    most_used_count = 0
+    for caliber, count in caliber_usage.items():
+        if count > most_used_count:
+            most_used_caliber = caliber
+            most_used_count = count
+    
+    # Prepare caliber data for chart
+    caliber_list = list(caliber_usage.keys())
+    caliber_counts = [caliber_usage[cal] for cal in caliber_list]
     
     return render_template('range_trips.html', 
+                          trips=trips,
+                          total_trips=total_trips,
                           active_trips=active_trips,
-                          completed_trips=completed_trips)
+                          total_rounds_used=total_rounds_used,
+                          most_used_caliber=most_used_caliber,
+                          caliber_list=caliber_list,
+                          caliber_usage=caliber_counts)
 
 @app.route('/range-trips/<int:trip_id>')
 def view_range_trip(trip_id):
