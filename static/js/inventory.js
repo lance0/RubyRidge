@@ -12,15 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const deleteConfirmModal = document.getElementById('deleteConfirmModal');
     const ammoChartCanvas = document.getElementById('ammoChart');
     
-    // Chart data from server (if available)
-    let chartData = null;
-    try {
-        if (document.getElementById('chart-data')) {
-            chartData = JSON.parse(document.getElementById('chart-data').textContent);
-        }
-    } catch (e) {
-        console.error('Error parsing chart data:', e);
-    }
+    // Chart data is directly available from the template
     
     // Form fields for editing
     const editItemForm = document.getElementById('editItemForm');
