@@ -1,94 +1,215 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row">
-    <div class="col-lg-10 offset-lg-1">
-        <div class="card shadow-lg border-0 rounded-lg mt-2 mb-4 bg-dark text-white">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h2 class="text-danger mb-0"><i class="fas fa-shooting-target me-2"></i>Range Trips</h2>
-                <a href="{{ url_for('new_range_trip') }}" class="btn btn-success">
-                    <i class="fas fa-plus me-2"></i>New Range Trip
-                </a>
-            </div>
-            
-            <div class="card-body">
-                <!-- Active Range Trips -->
-                <h3 class="text-white">Active Range Trips</h3>
-                {% if active_trips %}
-                <div class="table-responsive">
-                    <table class="table table-dark table-hover">
-                        <thead class="table-danger">
-                            <tr>
-                                <th>Name</th>
-                                <th>Date</th>
-                                <th>Location</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for trip in active_trips %}
-                            <tr>
-                                <td><a href="{{ url_for('view_range_trip', trip_id=trip.id) }}" class="text-white fw-bold">{{ trip.name }}</a></td>
-                                <td>{{ trip.date }}</td>
-                                <td>{{ trip.location }}</td>
-                                <td>
-                                    <a href="{{ url_for('view_range_trip', trip_id=trip.id) }}" class="btn btn-sm btn-primary me-1">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
-                                    <a href="{{ url_for('checkout_ammo', trip_id=trip.id) }}" class="btn btn-sm btn-success me-1">
-                                        <i class="fas fa-sign-out-alt"></i> Checkout
-                                    </a>
-                                    <a href="{{ url_for('checkin_ammo', trip_id=trip.id) }}" class="btn btn-sm btn-warning">
-                                        <i class="fas fa-sign-in-alt"></i> Check In
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-lg-10 offset-lg-1">
+            <div class="card shadow-lg border-0 rounded-lg bg-dark text-white">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="text-danger mb-0"><i class="fas fa-bullseye me-2"></i>Range Trips</h2>
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newTripModal">
+                        <i class="fas fa-plus me-1"></i> New Range Trip
+                    </button>
                 </div>
-                {% else %}
-                <div class="alert alert-info">
-                    <p class="mb-0">No active range trips. <a href="{{ url_for('new_range_trip') }}" class="alert-link">Create a new range trip</a>.</p>
-                </div>
-                {% endif %}
                 
-                <!-- Completed Range Trips -->
-                <h3 class="text-white mt-4">Completed Range Trips</h3>
-                {% if completed_trips %}
-                <div class="table-responsive">
-                    <table class="table table-dark table-hover">
-                        <thead class="table-secondary">
-                            <tr>
-                                <th>Name</th>
-                                <th>Date</th>
-                                <th>Location</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for trip in completed_trips %}
-                            <tr>
-                                <td><a href="{{ url_for('view_range_trip', trip_id=trip.id) }}" class="text-white">{{ trip.name }}</a></td>
-                                <td>{{ trip.date }}</td>
-                                <td>{{ trip.location }}</td>
-                                <td>
-                                    <a href="{{ url_for('view_range_trip', trip_id=trip.id) }}" class="btn btn-sm btn-primary">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <div class="card-body">
+                    {% if trips %}
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover">
+                                <thead class="table-danger">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Date</th>
+                                        <th>Location</th>
+                                        <th>Status</th>
+                                        <th>Ammo Used</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for trip in trips %}
+                                    <tr>
+                                        <td>{{ trip.name }}</td>
+                                        <td>{{ trip.date }}</td>
+                                        <td>{{ trip.location or 'Not specified' }}</td>
+                                        <td>
+                                            <span class="badge {% if trip.status == 'active' %}bg-success{% else %}bg-secondary{% endif %}">
+                                                {{ trip.status|title }}
+                                            </span>
+                                        </td>
+                                        <td>{{ trip.total_rounds_used if trip.total_rounds_used else 0 }} rounds</td>
+                                        <td>
+                                            <a href="{{ url_for('view_range_trip', trip_id=trip.id) }}" class="btn btn-sm btn-info me-1">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {% if trip.status == 'active' %}
+                                            <a href="{{ url_for('checkout_ammo', trip_id=trip.id) }}" class="btn btn-sm btn-success me-1">
+                                                <i class="fas fa-sign-out-alt"></i>
+                                            </a>
+                                            <a href="{{ url_for('checkin_ammo', trip_id=trip.id) }}" class="btn btn-sm btn-warning">
+                                                <i class="fas fa-sign-in-alt"></i>
+                                            </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <p class="mb-0">No range trips found. Create your first range trip to start tracking ammunition usage.</p>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Range Trip Statistics -->
+                    {% if trips %}
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card bg-secondary text-white">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Recent Usage by Caliber</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="caliberUsageChart" width="400" height="250"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-secondary text-white">
+                                <div class="card-header">
+                                    <h5 class="mb-0">Overall Statistics</h5>
+                                </div>
+                                <div class="card-body">
+                                    <dl class="row text-white">
+                                        <dt class="col-sm-7">Total Range Trips:</dt>
+                                        <dd class="col-sm-5">{{ total_trips }}</dd>
+                                        
+                                        <dt class="col-sm-7">Total Rounds Used:</dt>
+                                        <dd class="col-sm-5">{{ total_rounds_used }}</dd>
+                                        
+                                        <dt class="col-sm-7">Active Trips:</dt>
+                                        <dd class="col-sm-5">{{ active_trips }}</dd>
+                                        
+                                        <dt class="col-sm-7">Most Used Caliber:</dt>
+                                        <dd class="col-sm-5">{{ most_used_caliber or 'N/A' }}</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
-                {% else %}
-                <div class="alert alert-secondary">
-                    <p class="mb-0">No completed range trips.</p>
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+<!-- New Trip Modal -->
+<div class="modal fade" id="newTripModal" tabindex="-1" aria-labelledby="newTripModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-danger" id="newTripModalLabel">New Range Trip</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('new_range_trip') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="tripName" class="form-label text-white">Trip Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control bg-secondary text-white" id="tripName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tripDate" class="form-label text-white">Date <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control bg-secondary text-white" id="tripDate" name="date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tripLocation" class="form-label text-white">Location</label>
+                        <input type="text" class="form-control bg-secondary text-white" id="tripLocation" name="location">
+                    </div>
+                    <div class="mb-3">
+                        <label for="tripNotes" class="form-label text-white">Notes</label>
+                        <textarea class="form-control bg-secondary text-white" id="tripNotes" name="notes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Create Trip</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js for range trip statistics -->
+{% if trips %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sample data - this would ideally come from the backend
+        const calibers = {{ caliber_list|tojson }};
+        const usageCounts = {{ caliber_usage|tojson }};
+        
+        const ctx = document.getElementById('caliberUsageChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: calibers,
+                datasets: [{
+                    label: 'Rounds Used',
+                    data: usageCounts,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw + ' rounds';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#ffffff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#ffffff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endif %}
 {% endblock %}

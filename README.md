@@ -11,6 +11,9 @@ A mobile-responsive ammunition inventory web application with barcode scanning c
 - **UPC Database**: Maintain a database of ammunition UPC codes
 - **Product Search**: Find ammunition by caliber and import details to your database
 - **UPC Item DB API Integration**: Automatic lookup of UPCs in external database
+- **Range Trip Tracking**: Plan range trips, check out ammo, and track usage
+- **Inventory Visualization**: Charts with threshold settings for low inventory warnings
+- **CSV Import/Export**: Easily transfer inventory data with standardized templates
 - **Mobile-Responsive**: Works on all devices from desktop to smartphones
 - **Tactical Design**: Modern UI with a tactical aesthetic
 
@@ -102,13 +105,21 @@ A mobile-responsive ammunition inventory web application with barcode scanning c
 2. **Add UPC data** by navigating to the UPC Database page
 3. **Scan barcodes** using the Scan Barcode page (works best on mobile devices)
 4. **Manage inventory** on the Inventory page
+5. **Set thresholds** for low ammunition warnings by caliber
+6. **Create range trips** to track ammunition usage
+7. **Check out ammunition** for a range trip
+8. **Check in unused ammunition** when you return from the range
+9. **Import/Export inventory** using the CSV functionality
 
 ## Data Structure
 
-The application uses two primary database models:
+The application uses several database models:
 
 - **AmmoBox**: Represents an ammunition box in inventory with quantity information
 - **UpcData**: Stores UPC lookup data for ammunition products
+- **CaliberThreshold**: Stores threshold settings for ammunition calibers (low, critical, target)
+- **RangeTrip**: Represents a range trip with date, location, and status information
+- **RangeTripItem**: Tracks ammunition checked out, used, and returned for a range trip
 
 ## Mobile Usage
 
