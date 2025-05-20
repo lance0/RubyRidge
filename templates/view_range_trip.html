@@ -32,7 +32,7 @@
                                 <h5 class="mb-0">Trip Details</h5>
                             </div>
                             <div class="card-body">
-                                <dl class="row mb-0">
+                                <dl class="row mb-0 text-white">
                                     <dt class="col-sm-4">Date:</dt>
                                     <dd class="col-sm-8">{{ trip.date }}</dd>
                                     
@@ -51,7 +51,7 @@
                                 <h5 class="mb-0">Ammunition Summary</h5>
                             </div>
                             <div class="card-body">
-                                <dl class="row mb-0">
+                                <dl class="row mb-0 text-white">
                                     <dt class="col-sm-6">Total Rounds Out:</dt>
                                     <dd class="col-sm-6">{{ total_rounds_out }}</dd>
                                     
@@ -68,16 +68,16 @@
                 
                 <!-- Ammunition Details -->
                 {% if trip_items %}
-                    <h4>Ammunition Details</h4>
+                    <h4 class="text-white">Ammunition Details</h4>
                     {% for caliber, items in items_by_caliber.items() %}
                         <div class="card mb-3 bg-secondary">
                             <div class="card-header">
-                                <h5 class="mb-0">{{ caliber }}</h5>
+                                <h5 class="mb-0 text-white">{{ caliber }}</h5>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
                                     <table class="table table-dark table-hover">
-                                        <thead>
+                                        <thead class="table-danger">
                                             <tr>
                                                 <th>Name</th>
                                                 <th>Count/Box</th>
@@ -86,7 +86,7 @@
                                                 <th>Rounds Used</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody class="text-white">
                                             {% for item in items %}
                                             <tr>
                                                 <td>{{ item.name }}</td>
