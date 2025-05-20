@@ -63,12 +63,14 @@ def initialize_database():
 from auth_routes import auth
 from firearm_routes import firearms
 from simple_auth import auth_simple
+from quick_auth import quick_auth
 app.register_blueprint(auth, url_prefix='/auth')
 app.register_blueprint(firearms)
 app.register_blueprint(auth_simple)
+app.register_blueprint(quick_auth)
 
-# Update login view to use simple auth
-login_manager.login_view = 'auth_simple.login'
+# Update login view to use quick auth
+login_manager.login_view = 'quick_auth.quick_login'
 
 # Initialize database with default data 
 try:

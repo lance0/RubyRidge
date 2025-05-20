@@ -18,7 +18,8 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(256), nullable=False)
     first_name = db.Column(db.String(64), nullable=True)
     last_name = db.Column(db.String(64), nullable=True)
-    profile_image_url = db.Column(db.String(255), nullable=True)
+    # Remove problematic column that's not in the database yet
+    # profile_image_url = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, nullable=True)
     
@@ -48,6 +49,8 @@ class User(UserMixin, db.Model):
             'email': self.email,
             'first_name': self.first_name,
             'last_name': self.last_name,
+            # Add a placeholder value for profile_image_url
+            'profile_image_url': None,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'last_login': self.last_login.isoformat() if self.last_login else None
         }

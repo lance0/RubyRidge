@@ -64,17 +64,17 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}"><i class="fas fa-id-card me-1"></i> Profile</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-gun me-1"></i> GunSafe</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('firearms.gunsafe') }}"><i class="fas fa-gun me-1"></i> GunSafe</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-1"></i> Logout</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('auth_simple.logout') }}"><i class="fas fa-sign-out-alt me-1"></i> Logout</a></li>
                             </ul>
                         </li>
                         {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.login') }}"><i class="fas fa-sign-in-alt me-1"></i> Login</a>
+                            <a class="nav-link" href="{{ url_for('auth_simple.login') }}"><i class="fas fa-sign-in-alt me-1"></i> Login</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.register') }}"><i class="fas fa-user-plus me-1"></i> Register</a>
+                            <a class="nav-link" href="{{ url_for('auth_simple.login') }}"><i class="fas fa-user-plus me-1"></i> Register</a>
                         </li>
                         {% endif %}
                     </ul>
