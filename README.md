@@ -49,6 +49,11 @@ A mobile-responsive ammunition inventory web application with barcode scanning c
    ```
    pip install -e .
    ```
+   
+   Alternatively, if you have `uv` installed:
+   ```
+   uv pip install -e .
+   ```
 
 4. Set up PostgreSQL database
    - Install PostgreSQL if not already installed
@@ -57,18 +62,22 @@ A mobile-responsive ammunition inventory web application with barcode scanning c
 5. Set up the environment variables
    ```
    export DATABASE_URL=postgresql://user:password@localhost/ammo_inventory
-   export FLASK_SECRET_KEY=your_secret_key
+   export SESSION_SECRET=your_secret_key
    ```
 
 6. Initialize the database
    ```
-   flask db upgrade
+   python main.py
    ```
+   
+   This will create the necessary tables and initialize default data.
 
 7. Run the application
    ```
    gunicorn --bind 0.0.0.0:5000 main:app
    ```
+
+8. Access the application at http://localhost:5000 and log in with the default credentials (see Authentication & Security section below).
 
 ### Docker Installation (Recommended for Production)
 
@@ -78,29 +87,93 @@ A mobile-responsive ammunition inventory web application with barcode scanning c
    cd rubyridge-ammo-inventory
    ```
 
-2. Build and start the containers
+2. Edit the `docker-compose.yml` file and update the following environment variables:
+   ```yaml
+   environment:
+     - SESSION_SECRET=your_strong_random_key_here
+     - POSTGRES_PASSWORD=your_secure_database_password
+   ```
+
+3. Build and start the containers
    ```
    docker-compose up -d
    ```
 
-3. The application will be available at http://localhost:5000
+4. The application will be available at http://localhost:5000
 
-4. To stop the application
+5. Log in with the default credentials (see Authentication & Security section below)
+
+6. To stop the application
    ```
    docker-compose down
    ```
 
+7. To view logs
+   ```
+   docker-compose logs -f web
+   ```
+
 ### Production Deployment Considerations
 
-1. **Environment Variables**: Update environment variables in docker-compose.yml with secure values:
-   - FLASK_SECRET_KEY: Use a strong, randomly generated key
+1. **Security**: Immediately after deployment:
+   - Change the default credentials through the Account Settings page
+   - Set strong, unique passwords for all services
+
+2. **Environment Variables**: Update environment variables in docker-compose.yml with secure values:
+   - SESSION_SECRET: Use a strong, randomly generated key (at least 32 characters)
    - PostgreSQL credentials: Change from default values
 
-2. **HTTPS Setup**: In production, configure a reverse proxy (Nginx, Traefik) to handle HTTPS
+3. **HTTPS Setup**: In production, configure a reverse proxy (Nginx, Traefik) to handle HTTPS
+   ```yaml
+   # Example Nginx configuration
+   server {
+       listen 80;
+       server_name your-domain.com;
+       return 301 https://$host$request_uri;
+   }
 
-3. **Database Backups**: Configure regular PostgreSQL backups
+   server {
+       listen 443 ssl;
+       server_name your-domain.com;
 
-4. **Logging**: Set up external logging service or volume mount for log persistence
+       ssl_certificate /path/to/fullchain.pem;
+       ssl_certificate_key /path/to/privkey.pem;
+
+       location / {
+           proxy_pass http://localhost:5000;
+           proxy_set_header Host $host;
+           proxy_set_header X-Real-IP $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+           proxy_set_header X-Forwarded-Proto $scheme;
+       }
+   }
+   ```
+
+4. **Database Backups**: Configure regular PostgreSQL backups
+   ```
+   # Add to crontab
+   0 2 * * * docker exec rubyridge-ammo-inventory_db_1 pg_dump -U postgres ammo_inventory > /backup/ammo_inventory_$(date +\%Y\%m\%d).sql
+   ```
+
+5. **Logging**: Set up external logging service or volume mount for log persistence
+   ```yaml
+   # Update in docker-compose.yml
+   services:
+     web:
+       volumes:
+         - ./logs:/app/logs
+   ```
+
+6. **Resource Limits**: Set resource limits in the docker-compose.yml
+   ```yaml
+   services:
+     web:
+       deploy:
+         resources:
+           limits:
+             cpus: '1'
+             memory: 512M
+   ```
 
 ## Authentication & Security
 

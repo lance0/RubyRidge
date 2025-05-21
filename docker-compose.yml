@@ -9,15 +9,31 @@ services:
       - db
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/ammo_inventory
-      - FLASK_SECRET_KEY=change_me_in_production
+      - SESSION_SECRET=change_me_in_production
     volumes:
       - .:/app
+      - ./logs:/app/logs
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/about"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
 
   db:
     image: postgres:15
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+      - ./backups:/backups
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
@@ -25,6 +41,20 @@ services:
     ports:
       - "5432:5432"
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
 
 volumes:
   postgres_data:
