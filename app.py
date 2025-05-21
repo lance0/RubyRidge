@@ -314,6 +314,7 @@ def range_trips():
                           caliber_usage=caliber_counts)
 
 @app.route('/range-trips/<int:trip_id>')
+@login_required
 def view_range_trip(trip_id):
     # Get the range trip by ID
     trip = RangeTrip.query.get_or_404(trip_id)
@@ -342,6 +343,7 @@ def view_range_trip(trip_id):
                           total_rounds_used=total_rounds_used)
 
 @app.route('/range-trips/new', methods=['GET', 'POST'])
+@login_required
 def new_range_trip():
     if request.method == 'POST':
         # Create a new range trip
@@ -499,6 +501,7 @@ def checkin_ammo(trip_id):
     return render_template('checkin_ammo.html', trip=trip, trip_items=trip_items)
 
 @app.route('/inventory')
+@login_required
 def inventory():
     # Get all inventory items from database
     ammo_inventory = AmmoBox.query.all()
