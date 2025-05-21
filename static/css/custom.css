@@ -1,0 +1,92 @@
+/* Custom CSS for RubyRidge Ammo Inventory */
+
+/* Make h5 tags brighter */
+h5 {
+    color: #f8f9fa !important; /* Bright white color */
+    font-weight: 600;
+}
+
+/* Toast styling */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+    background-color: #343a40;
+    color: #fff;
+    border-left: 4px solid #dc3545;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.toast-header {
+    background-color: rgba(52, 58, 64, 0.85);
+    color: #fff;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.toast-body {
+    padding: 12px;
+}
+
+.toast.bg-success {
+    border-left-color: #28a745;
+}
+
+.toast.bg-danger {
+    border-left-color: #dc3545;
+}
+
+.toast.bg-warning {
+    border-left-color: #ffc107;
+}
+
+.toast.bg-info {
+    border-left-color: #17a2b8;
+}
+
+/* Make form labels brighter */
+.form-label {
+    color: #e9ecef !important;
+    font-weight: 500;
+}
+
+/* Improve button hover effects */
+.btn-danger:hover {
+    background-color: #c82333;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Improve card styles */
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+/* Make table headers brighter */
+.table thead th {
+    color: #f8f9fa !important;
+    background-color: #343a40;
+    border-color: #454d55;
+}
+
+/* Improve navbar */
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255,255,255,.8);
+    transition: color 0.3s ease;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: #dc3545;
+}
