@@ -11,9 +11,12 @@ A mobile-responsive ammunition inventory web application with barcode scanning c
 - **UPC Database**: Maintain a database of ammunition UPC codes
 - **Product Search**: Find ammunition by caliber and import details to your database
 - **UPC Item DB API Integration**: Automatic lookup of UPCs in external database
-- **Range Trip Tracking**: Plan range trips, check out ammo, and track usage
+- **Range Trip Tracking**: Plan range trips, check out ammo, and track usage with weather data
 - **Inventory Visualization**: Charts with threshold settings for low inventory warnings
 - **CSV Import/Export**: Easily transfer inventory data with standardized templates
+- **GunSafe**: Manage your firearms collection with detailed tracking
+- **Account Management**: Secure user authentication with account settings
+- **Toast Notifications**: User-friendly feedback for all operations
 - **Mobile-Responsive**: Works on all devices from desktop to smartphones
 - **Tactical Design**: Modern UI with a tactical aesthetic
 
@@ -99,17 +102,38 @@ A mobile-responsive ammunition inventory web application with barcode scanning c
 
 4. **Logging**: Set up external logging service or volume mount for log persistence
 
+## Authentication & Security
+
+### Default Credentials
+
+For testing and initial setup, the application comes with a default user account:
+- **Username**: budd
+- **Password**: dwyer
+
+⚠️ **IMPORTANT SECURITY NOTICE**: These default credentials are provided for initial setup only. 
+You should change both the username and password immediately after your first login by following these steps:
+
+1. Log in with the default credentials
+2. Click on your username in the top right corner of the navigation bar
+3. Select "Account Settings" from the dropdown menu
+4. Update your username, email, and password
+5. Click "Save Changes" to apply the new credentials
+
+Continuing to use the default credentials poses a significant security risk. The application will display warnings until you change these default values.
+
 ## Usage
 
 1. **Access the application** at http://localhost:5000
-2. **Add UPC data** by navigating to the UPC Database page
-3. **Scan barcodes** using the Scan Barcode page (works best on mobile devices)
-4. **Manage inventory** on the Inventory page
-5. **Set thresholds** for low ammunition warnings by caliber
-6. **Create range trips** to track ammunition usage
-7. **Check out ammunition** for a range trip
-8. **Check in unused ammunition** when you return from the range
-9. **Import/Export inventory** using the CSV functionality
+2. **Log in** with the default credentials (or your custom credentials if already changed)
+3. **Add UPC data** by navigating to the UPC Database page
+4. **Scan barcodes** using the Scan Barcode page (works best on mobile devices)
+5. **Manage inventory** on the Inventory page
+6. **Set thresholds** for low ammunition warnings by caliber
+7. **Create range trips** to track ammunition usage
+8. **Check out ammunition** for a range trip
+9. **Check in unused ammunition** when you return from the range
+10. **Import/Export inventory** using the CSV functionality
+11. **Manage firearms** in the GunSafe feature
 
 ## Data Structure
 
