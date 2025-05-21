@@ -586,10 +586,12 @@ def inventory():
                           caliber_inventory=caliber_inventory)
 
 @app.route('/scan')
+@login_required
 def scan():
     return render_template('scan.html')
 
 @app.route('/upcs')
+@login_required
 def upcs():
     # Get all UPC data from database
     upc_data = UpcData.query.order_by(UpcData.name).all()
@@ -597,10 +599,11 @@ def upcs():
 
 @app.route('/about')
 def about():
-    # About page
+    # About page - accessible without login
     return render_template('about.html')
 
 @app.route('/api/scrape_ammo', methods=['POST'])
+@login_required
 def scrape_ammo():
     # Since web scraping can be unstable, we'll use a combination of:
     # 1. Simulated data for common ammunition
@@ -831,6 +834,7 @@ def scrape_ammo():
         return jsonify({"success": False, "message": f"Error processing ammunition search: {str(e)}"})
 
 @app.route('/api/lookup_upc/<upc>', methods=['GET'])
+@login_required
 def api_lookup_upc(upc):
     ammo_data = lookup_upc(upc)
     if ammo_data:
