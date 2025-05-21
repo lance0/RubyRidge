@@ -134,7 +134,7 @@
                 <h5 class="modal-title" id="addFirearmModalLabel"><i class="fas fa-plus-circle"></i> Add New Firearm</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="addFirearmForm" method="POST" action="/gunsafe/add">
+            <form id="addFirearmForm" method="POST" action="{{ url_for('firearms.add_firearm') }}">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6">
@@ -234,7 +234,7 @@
                 <h5 class="modal-title" id="editFirearmModalLabel"><i class="fas fa-edit"></i> Edit Firearm</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="editFirearmForm" method="POST" action="/gunsafe/edit">
+            <form id="editFirearmForm" method="POST" action="{{ url_for('firearms.edit_firearm') }}">
                 <input type="hidden" id="edit_firearm_id" name="firearm_id">
                 <div class="modal-body">
                     <!-- Form fields will be the same as the Add Firearm form -->
@@ -342,7 +342,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form id="deleteFirearmForm" method="POST" action="/gunsafe/delete">
+                <form id="deleteFirearmForm" method="POST" action="{{ url_for('firearms.delete_firearm') }}">
                     <input type="hidden" id="delete_firearm_id" name="firearm_id">
                     <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Delete Permanently</button>
                 </form>
@@ -373,7 +373,7 @@
                 const firearmId = this.dataset.id;
                 
                 // Fetch firearm data from server
-                fetch(`/gunsafe/firearm/${firearmId}`)
+                fetch(`{{ url_for('firearms.get_firearm', firearm_id=0) }}`.replace('0', firearmId))
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
