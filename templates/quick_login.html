@@ -12,8 +12,10 @@
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ url_for('quick_auth.quick_login') }}">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i> This is a simplified login that creates and uses the default account.
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i> <strong>Security Notice:</strong> This is using default credentials. 
+                            Please go to <a href="{{ url_for('quick_auth.account_settings') }}">Account Settings</a> to change your username and password 
+                            after logging in.
                         </div>
                         
                         <div class="mb-3">
