@@ -267,9 +267,10 @@ def home():
 
 # Range Trips
 @app.route('/range-trips')
+@login_required
 def range_trips():
     # Get all range trips, most recent first
-    trips = RangeTrip.query.order_by(RangeTrip.date.desc()).all()
+    trips = RangeTrip.query.filter_by(user_id=current_user.id).order_by(RangeTrip.date.desc()).all()
     
     # Calculate statistics
     total_trips = len(trips)
